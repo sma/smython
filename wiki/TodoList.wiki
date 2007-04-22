@@ -1,0 +1,91 @@
+= Todo list of open issues =
+
+== 1. General ==
+
+ * no builtin functions, no builtin modules  
+ * scanner & parser simply abort on errors
+ * no exception hierarchy 
+ * code was written against 1.4 spec, 1.6 spec is new goal
+
+== 2. Lexical Analysis ==
+
+ * scanner ignores \t
+ * scanner allows spaces or comments after trailing \ (extension)
+ * no multiline strings
+ * no string escapes
+ * no rawstrings
+ * everything is considered to be unicode
+ * no floats, no complex numbers
+ * no lowercase "l" for long integers allowed
+
+== 3. Data Model ==
+
+ * no id() builtin function
+ * no type() builtin function
+ * try/except doesn't work correctly
+ * no {{{__}}}members{{{__}}} or {{{__}}}methods{{{__}}} attributes
+ * no Ellipsis type and no ... object
+ * no floats, no complex numbers
+ * no explicit unicode string, instead normal string is UTF-16
+ * no len() builtin function
+ * no docstrings for any kind of function, method or class
+ * functions and methods lack most special attributes
+ * clases most lack special atttributes
+ * module objects are not implemented at all
+ * no file objects
+ * code objects are not supported (internal object, I use AST Nodes)
+ * frame objects only rudimentary
+ * no traceback objects
+ * no slice objects 
+ * no right-side {{{__}}}rXX{{{__}}} methods, no {{{__}}}coerce{{{__}}}
+ * coercion rule not implemented
+
+== 4. Execution model ==
+
+ * no exec, execfile(), eval() or input()
+ * no builtin namespace, no support for globals
+ * no {{{__}}}builtin{{{__}}} namespace
+ * no {{{__}}}main{{{__}}} namespace
+ * exceptions can be raised and caught but exeception hierarchy is non-existant
+
+== 5. Expressions ==
+
+ * arithmetic conversions (coercion rules) not implemented
+ * no private name mangling
+ * extended slicing not implementd (I didn't unstand what to do)
+ * assigning to tuple parameter in functions doesn't work
+ * never checked whether % is correctly implemented
+ * no divmod() builtin function
+ * negative shift counts do not raise exception (extension)
+ * < or > for objects of different type compare hash values! (simulating pointer comparison)
+
+== 6. Simple statements ==
+
+ * assert does not check for {{{__}}}debug{{{__}}}
+ * assign to nested tuples never tested - probably doesn't work
+ * assignment only works with tuples as defined by Python 1.4, relaxed rules not supported
+ * del: not tested
+ * print: str() implementation is incomplete
+ * raise: two or three argument variant do not work
+ * import: not supported
+ * global: ignored, doesn't work with the current way the parser constructs the AST
+ * exec: not supported
+
+== 7. Compound statements ==
+
+ * try/except doesn't support exception hierarchy
+ * no sys.exc_type, sys.exc_traceback, etc.
+ * functions with tuple parameter names can be defined but not correctly called
+ * functions have no name
+ * classes have no name
+
+== 8. Toplevel components ==
+
+ * cannot execute files
+ * no eval(), execfile() or input() builtin functions
+
+
+
+
+
+
