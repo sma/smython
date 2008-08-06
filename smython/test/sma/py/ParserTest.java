@@ -198,7 +198,7 @@ public class ParserTest extends TestCase {
   public void testImportStmt() {
     assertNotNull(parseStmt("import X"));
     assertNotNull(parseStmt("import X, Y, Z"));
-
+    // and the from-import statement
     assertNotNull(parseStmt("from M import X"));
     assertNotNull(parseStmt("from M import X, Y, Z"));
     assertNotNull(parseStmt("from M import *"));

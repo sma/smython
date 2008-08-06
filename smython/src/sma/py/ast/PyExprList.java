@@ -84,6 +84,7 @@ public class PyExprList extends PyNode {
   /**
    * Returns whether all expression nodes can play the role of a target and
    * {@link #assign(PyFrame, PyObject)} or {@link #del(PyFrame)} can be called.
+   * @return <code>true</code> if all expression nodes are targets
    */
   public boolean isTarget() {
     for (PyExpr expr : expressions) {

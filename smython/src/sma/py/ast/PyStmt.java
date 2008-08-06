@@ -13,6 +13,9 @@ public abstract class PyStmt extends PyNode {
   /**
    * Evaluates the expression node in the context of the given frame and returns the result of the
    * evaluation.
+   *
+   * @param frame the current context, storing local and global variables
+   * @return <code>PyObject.None</code> because statements have no value
    */
   public PyObject eval(PyFrame frame) {
     execute(frame);
@@ -21,6 +24,8 @@ public abstract class PyStmt extends PyNode {
 
   /**
    * Executes the statement node in the context of the given frame.
+   *
+   * @param frame the current context, storing local and global variables
    */
   public abstract void execute(PyFrame frame);
 

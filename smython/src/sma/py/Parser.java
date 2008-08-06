@@ -7,62 +7,7 @@ import java.math.BigInteger;
 import java.util.ArrayList;
 import java.util.List;
 
-import sma.py.ast.PyAddExpr;
-import sma.py.ast.PyAndExpr;
-import sma.py.ast.PyAssertStmt;
-import sma.py.ast.PyAssignStmt;
-import sma.py.ast.PyAttrRef;
-import sma.py.ast.PyBitAndExpr;
-import sma.py.ast.PyBitInvert;
-import sma.py.ast.PyBitOrExpr;
-import sma.py.ast.PyBitXorExpr;
-import sma.py.ast.PyBreakStmt;
-import sma.py.ast.PyCall;
-import sma.py.ast.PyClassStmt;
-import sma.py.ast.PyComparison;
-import sma.py.ast.PyContinueStmt;
-import sma.py.ast.PyDefStmt;
-import sma.py.ast.PyDelStmt;
-import sma.py.ast.PyDictConstr;
-import sma.py.ast.PyDivExpr;
-import sma.py.ast.PyExceptClause;
-import sma.py.ast.PyExecStmt;
-import sma.py.ast.PyExpr;
-import sma.py.ast.PyExprList;
-import sma.py.ast.PyExprStmt;
-import sma.py.ast.PyForStmt;
-import sma.py.ast.PyGlobalStmt;
-import sma.py.ast.PyIfStmt;
-import sma.py.ast.PyImportStmt;
-import sma.py.ast.PyLambda;
-import sma.py.ast.PyListConstr;
-import sma.py.ast.PyLiteral;
-import sma.py.ast.PyLshiftExpr;
-import sma.py.ast.PyModExpr;
-import sma.py.ast.PyMulExpr;
-import sma.py.ast.PyNegate;
-import sma.py.ast.PyNot;
-import sma.py.ast.PyOrExpr;
-import sma.py.ast.PyParamList;
-import sma.py.ast.PyPassStmt;
-import sma.py.ast.PyPositive;
-import sma.py.ast.PyPowExpr;
-import sma.py.ast.PyPrintStmt;
-import sma.py.ast.PyRaiseStmt;
-import sma.py.ast.PyReturnStmt;
-import sma.py.ast.PyRshiftExpr;
-import sma.py.ast.PySlicing;
-import sma.py.ast.PyStmt;
-import sma.py.ast.PyStringConversion;
-import sma.py.ast.PySubExpr;
-import sma.py.ast.PySubscript;
-import sma.py.ast.PySubscription;
-import sma.py.ast.PySuite;
-import sma.py.ast.PyTryExceptStmt;
-import sma.py.ast.PyTryFinallyStmt;
-import sma.py.ast.PyTupleConstr;
-import sma.py.ast.PyIdentifier;
-import sma.py.ast.PyWhileStmt;
+import sma.py.ast.*;
 import sma.py.rt.PyObject;
 import sma.py.rt.PyString;
 import sma.py.rt.PyTuple;
@@ -71,10 +16,19 @@ import sma.py.rt.PyTuple;
  * Takes a source and returns an abstract syntax tree.
  */
 public class Parser extends Scanner {
+  /**
+   * Constructs a new parser for the given source string.
+   * 
+   * @param source the Python source
+   */
   public Parser(String source) {
     super(source);
   }
 
+  /**
+   * Parses an sequence of statements.
+   * @return a suite statement node containing the statement nodes
+   */
   public PySuite interactiveInput() {
     PySuite suite = new PySuite();
     while (tokenType != null) {
@@ -88,9 +42,11 @@ public class Parser extends Scanner {
 
   /**
    * Parses a class definition, see §7.6.
+   * Called from {@code compoundStmt()} with "class" already consumed.
    * <pre>
    * classdef: 'class' NAME ['(' testlist ')'] ':' suite
    * </pre>
+   * @return a class definition statement node
    */
   PyClassStmt classDef() {
     PyString name = name("class name missing");
@@ -106,10 +62,12 @@ public class Parser extends Scanner {
 
   /**
    * Parses a function definition, see §7.5.
+   * Called from {@code compoundStmt()} with "def" already consumed.
    * <pre>
    * funcdef: 'def' NAME parameters ':' suite
    * parameters: '(' [varargslist] ')'
    * </pre>
+   * @return a function definition statement node
    */
   PyDefStmt funcDef() {
     PyString name = name("function name missing");
@@ -122,9 +80,11 @@ public class Parser extends Scanner {
 
   /**
    * Parses a lambda expression, see §5.10.
+   * Called from {@code test()} with "lambda" already consumed.
    * <pre>
    * lambdef: 'lambda' [varargslist] ':' test
    * </pre>
+   * @return a lambda expression node
    */
   PyLambda lambDef() {
     PyParamList list = parameters();
@@ -134,10 +94,14 @@ public class Parser extends Scanner {
 
   /**
    * Parses the parameter list of a function or lambda definition.
+   * Called from {@code funcDef()} or {@code lambDef()}.
    * <pre>
    * varargslist: (fpdef ['=' test] ',')* ('*' NAME [',' '**' NAME] | '**' NAME)
    *              | fpdef ['=' test] (',' fpdef ['=' test])* [',']
    * </pre>
+   * @return a parameter list node containing tuple objects for parameters, an
+   * expression list node with expression nodes for default parameters and
+   * strings for the optional rest and keyword rest parameters
    */
   PyParamList parameters() {
     int nargs = 0;
@@ -177,6 +141,7 @@ public class Parser extends Scanner {
    * fpdef: NAME | '(' fplist ')'
    * fplist: fpdef (',' fpdef)* [',']
    * </pre>
+   * @return a tuple of strings or more tuples representing a parameter definition
    */
   PyObject parameter() {
     if (is("NAME")) {
@@ -202,6 +167,7 @@ public class Parser extends Scanner {
    * <pre>
    * suite: simple_stmt | NEWLINE INDENT stmt+ DEDENT
    * </pre>
+   * @return a suite statement node containing statement nodes
    */
   PySuite suite() {
     PySuite suite = new PySuite();
@@ -224,6 +190,7 @@ public class Parser extends Scanner {
    * <pre>
    * stmt: simpleStmt | compoundStmt
    * </pre>
+   * @return a statement node
    */
   PyStmt stmt() {
     PyStmt stmt = compoundStmt();
@@ -238,6 +205,8 @@ public class Parser extends Scanner {
    * <pre>
    * compoundStmt: ifStmt | whileStmt | forStmt | tryStmt | funcDef | classDef
    * </pre>
+   * @return a statement node or <code>null</code> if the next statement is neither
+   * an if, while, try, function defition or class definition statement
    */
   PyStmt compoundStmt() {
     if (match("if")) {
@@ -262,6 +231,7 @@ public class Parser extends Scanner {
    * <pre>
    * ifStmt: 'if' test ':' suite {'elif' test ':' suite} ['else' ':' suite]
    * </pre>
+   * @return an if statement node
    */
   PyStmt ifStmt() {
     PyExpr condition = test();
@@ -284,6 +254,7 @@ public class Parser extends Scanner {
    * <pre>
    * whileStmt: 'while' test ':' suite ['else' ':' suite]
    * </pre>
+   * @return a while statement node
    */
   PyStmt whileStmt() {
     PyExpr condition = test();
@@ -303,6 +274,7 @@ public class Parser extends Scanner {
    * <pre>
    * forStmt: 'for' targetlist 'in' testlist ':' suite ['else' ':' suite]
    * </pre>
+   * @return a for statement node
    */
   PyStmt forStmt() {
     PyExprList targets = targetlist();
@@ -320,9 +292,11 @@ public class Parser extends Scanner {
 
   /**
    * Parses a list of target expressions, see §6.2.
+   * Called by {@code delStmt()} and {@code forStmt()}.
    * <pre>
    * targetlist: target (',' target) [',']
    * </pre>
+   * @return an expression list node containing target expression nodes
    */
   PyExprList targetlist() {
     PyExprList list = new PyExprList();
@@ -338,9 +312,11 @@ public class Parser extends Scanner {
 
   /**
    * Parses a target expression, see §6.2.
+   * Called by {@code targetList()} and {@code tryStmt()}.
    * <pre>
    * target: NAME | '(' targetlist ')' | '[' targetlist ']' | attributeref | subscription | slicing
    * </pre>
+   * @return a target expression
    */
   PyExpr target() {
     PyExpr primary = primary();
@@ -358,6 +334,7 @@ public class Parser extends Scanner {
    *          'try' ':' suite 'finally' ':' suite
    * exceptClause: 'except' [test [',' target]]
    * </pre>
+   * @return a try/finally or a try/except statement node
    */
   PyStmt tryStmt() {
     expect(":");
@@ -395,6 +372,7 @@ public class Parser extends Scanner {
    * <pre>
    * simpleStmt: smallStmt (';' smallStmt)* [';'] NEWLINE
    * </pre>
+   * @return a single statement node or a suite statement node containing statement nodes
    */
   PyStmt simpleStmt() {
     PyStmt stmt = smallStmt();
@@ -419,6 +397,8 @@ public class Parser extends Scanner {
    * <pre>
    * smallStmt: exprStmt | printStmt | delStmt | passStmt | flowStmt | importStmt | globalStmt | execStmt | assertStmt.
    * flowStmt: breakStmt | continueStmt | returnStmt | raiseStmt
+   * </pre>
+   * @return a statement node
    */
   PyStmt smallStmt() {
     if (match("print")) {
@@ -461,41 +441,78 @@ public class Parser extends Scanner {
   }
 
   /**
-   * Parses a print statement.
+   * Parses a print statement, see §6.6.
    * <pre>
    * printStmt: 'print' [testtest]
    * </pre>
+   * @return a print statement node
    */
   PyStmt printStmt() {
     return new PyPrintStmt(optTestlist());
   }
 
-  /** delStmt: 'del' exprlist. */
+  /**
+   * Parses a del statement, see §6.5.
+   * <pre>
+   * delStmt: 'del' exprlist
+   * </pre>
+   * @return a del statement node
+   */
   PyStmt delStmt() {
     return new PyDelStmt(targetlist());
   }
 
-  /** passStmt: 'pass'. */
+  /**
+   * Parses a pass statement, see §6.4.
+   * <pre>
+   * passStmt: 'pass'
+   * </pre>
+   * @return a pass statement node
+   */
   PyStmt passStmt() {
     return new PyPassStmt();
   }
 
-  /** breakStmt: 'break'. */
+  /**
+   * Parses a break statement, see §6.9.
+   * <pre>
+   * breakStmt: 'break'
+   * </pre>
+   * @return a break statement node
+   */
   PyStmt breakStmt() {
     return new PyBreakStmt();
   }
 
-  /** continueStmt: 'continue'. */
+  /**
+   * Parses a continue statement, see §6.10.
+   * <pre>
+   * continueStmt: 'continue'
+   * </pre>
+   * @return a continue statement node
+   */
   PyStmt continueStmt() {
     return new PyContinueStmt();
   }
 
-  /** returnStmt: 'return' [testlist]. */
+  /**
+   * Parses a return statement, , see §6.7.
+   * <pre>
+   * returnStmt: 'return' [testlist]
+   * </pre>
+   * @return a return statement node
+   */
   PyStmt returnStmt() {
     return new PyReturnStmt(optTestlist());
   }
 
-  /** raiseStmt: 'raise' [test [',' test [',' test]]]. */
+  /**
+   * Parses a raise statement, see §6.8.
+   * <pre>
+   * raiseStmt: 'raise' [test [',' test [',' test]]]
+   * </pre>
+   * @return a raise statement node
+   */
   PyStmt raiseStmt() {
     PyExpr exception = test();
     PyExpr instance = null;
@@ -509,32 +526,52 @@ public class Parser extends Scanner {
     return new PyRaiseStmt(exception, instance, traceback);
   }
 
-  /** importStmt: 'import' dottedName (',' dottedName)*
-   *              | 'from' dottedName 'import' ('*' | NAME (',' NAME)*)
-   * dottedName: NAME ('.' NAME)*. */
+  /**
+   * Parses an import statement, see §6.11.
+   * <pre>
+   * importStmt: 'import' dottedName (',' dottedName)*
+   *              | ...
+   * dottedName: NAME ('.' NAME)*
+   * </pre>
+   * @return an import statement node
+   */
   PyStmt importStmt() {
-    List<PyString> names = new ArrayList<PyString>();
-    names.add(dottedName());
+    List<PyString> modules = new ArrayList<PyString>();
+    modules.add(dottedName());
     while (match(",")) {
-      names.add(dottedName());
+      modules.add(dottedName());
     }
-    return new PyImportStmt(null, names);
+    return new PyImportStmt(modules);
   }
 
+  /**
+   * Parses a from-import statement, see §6.11.
+   * <pre>
+   * importStmt: ...
+   *              | 'from' dottedName 'import' ('*' | NAME (',' NAME)*)
+   * dottedName: NAME ('.' NAME)*
+   * </pre>
+   * @return a from-import statement node
+   */
   PyStmt fromImportStmt() {
     PyString module = dottedName();
     expect("import");
     if (match("*")) {
-      return new PyImportStmt(module, null);
+      return new PyFromImportStmt(module, null);
     }
     List<PyString> names = new ArrayList<PyString>();
     names.add(name("name expected"));
     while (match(",")) {
       names.add(name("name expected"));
     }
-    return new PyImportStmt(module, names);
+    return new PyFromImportStmt(module, names);
   }
 
+
+  /**
+   * Parses a sequence of names separated by '.'.
+   * @return a string
+   */
   PyString dottedName() {
     StringBuilder b = new StringBuilder(64);
     b.append(name("name expected"));
@@ -544,7 +581,13 @@ public class Parser extends Scanner {
     return PyObject.make(b.toString());
   }
 
-  /** globalStmt: 'global' NAME (',' NAME)*. */
+  /**
+   * Parses a global statement, see §6.12.
+   * <pre>
+   * globalStmt: 'global' NAME (',' NAME)*
+   * </pre>
+   * @return a global statement node
+   */
   PyStmt globalStmt() {
     List<PyString> names = new ArrayList<PyString>();
     names.add(name("name expected"));
@@ -555,10 +598,11 @@ public class Parser extends Scanner {
   }
 
   /**
-   * Parses an exec statement, see §6.12.
+   * Parses an exec statement, see §6.13.
    * <pre>
    * execStmt: 'exec' test ['in' test [',' test]]
    * </pre>
+   * @return an exec statement node
    */
   PyStmt execStmt() {
     PyExpr expr = expr(); //XXX if using test(), the "in" is taken as comparison
@@ -578,6 +622,7 @@ public class Parser extends Scanner {
    * <pre>
    * assertStmt: 'assert' test [',' test]
    * </pre>
+   * @return an assert statement node
    */
   PyStmt assertStmt() {
     PyExpr condition = test();
@@ -593,6 +638,7 @@ public class Parser extends Scanner {
    * exprStmt: testlist
    * assignStmt: (targetlist '=')+ testlist
    * </pre>
+   * @return an assigment statement node or an expression statement node
    */
   PyStmt exprStmt() {
     PyExprList list = testlist();
@@ -610,6 +656,7 @@ public class Parser extends Scanner {
    * <pre>
    * testlist: test (',' test)* [',']
    * </pre>
+   * @return an expression list node
    */
   PyExprList testlist() {
     PyExprList list = new PyExprList();
@@ -629,6 +676,7 @@ public class Parser extends Scanner {
    * <pre>
    * test: andTest ('or' andTest)* | lambdef
    * </pre>
+   * @return a general expression node, an or-expression node or a lambda-expression node
    */
   PyExpr test() {
     if (match("lambda")) {
@@ -646,6 +694,7 @@ public class Parser extends Scanner {
    * <pre>
    * andTest: notTest ('and' notTest)*
    * </pre>
+   * @return a general expression node or an and-expression node
    */
   PyExpr andTest() {
     PyExpr expr = notTest();
@@ -660,6 +709,7 @@ public class Parser extends Scanner {
    * <pre>
    * notTest: 'not' notTest | comparison
    * </pre>
+   * @return a general expression node or a not-expression node
    */
   PyExpr notTest() {
     if (match("not")) {
@@ -673,6 +723,7 @@ public class Parser extends Scanner {
    * <pre>
    * comparison: expr (compOp expr)*
    * </pre>
+   * @return a general expression node or a comparison expression node
    */
   PyExpr comparison() {
     PyExpr expr = expr();
@@ -688,7 +739,13 @@ public class Parser extends Scanner {
     return expr;
   }
 
-  /** compOp: '<'|'>'|'=='|'>='|'<='|'<>'|'!='|'in'|'not' 'in'|'is'|'is' 'not'. */
+  /**
+   * Parses a comparison operator.
+   * <pre>
+   * compOp: '<'|'>'|'=='|'>='|'<='|'<>'|'!='|'in'|'not' 'in'|'is'|'is' 'not'
+   * </pre>
+   * @return a comparison enumeration value or <code>null</code> the next token is comparison operator
+   */
   PyComparison.Op compOp() {
     if (match("<")) {
       return PyComparison.Op.LT;
@@ -725,6 +782,7 @@ public class Parser extends Scanner {
    * <pre>
    * expr: xorExpr ('|' xorExpr)*
    * </pre>
+   * @return a general expression node or an bit-or-expression node
    */
   PyExpr expr() {
     PyExpr expr = xorExpr();
@@ -739,6 +797,7 @@ public class Parser extends Scanner {
    * <pre>
    * xorExpr: andExpr ('^' andExpr)*
    * </pre>
+   * @return a general expression node or a bit-xor-expression node
    */
   PyExpr xorExpr() {
     PyExpr expr = andExpr();
@@ -753,6 +812,7 @@ public class Parser extends Scanner {
    * <pre>
    * andExpr: shiftExpr ('&' shiftExpr)*
    * </pre>
+   * @return a general expression node or a bit-and-expression node
    */
   PyExpr andExpr() {
     PyExpr expr = shiftExpr();
@@ -767,6 +827,7 @@ public class Parser extends Scanner {
    * <pre>
    * shiftExpr: arithExpr (('<<'|'>>') arithExpr)*
    * </pre>
+   * @return a general expression node or a shift expression node
    */
   PyExpr shiftExpr() {
     PyExpr expr = arithExpr();
@@ -787,6 +848,7 @@ public class Parser extends Scanner {
    * <pre>
    * arithExpr: term (('+'|'-') term)*
    * </pre>
+   * @return a general expression node or an add-expression or sub-expression node
    */
   PyExpr arithExpr() {
     PyExpr expr = term();
@@ -807,6 +869,7 @@ public class Parser extends Scanner {
    * <pre>
    * term: factor (('*'|'/'|'%') factor)*
    * </pre>
+   * @return a general expression node or a multiplication-, division- or modulo-expression node
    */
   PyExpr term() {
     PyExpr expr = factor();
@@ -829,6 +892,7 @@ public class Parser extends Scanner {
    * <pre>
    * factor: ('+'|'-'|'~') factor | power
    * </pre>
+   * @return a general expression node or a negation expression node
    */
   PyExpr factor() {
     if (match("+")) {
@@ -848,6 +912,7 @@ public class Parser extends Scanner {
    * <pre>
    * power: primary ['**' factor]
    * </pre>
+   * @return a general expression node or a power-operation-expression node
    */
   PyExpr power() {
     PyExpr expr = primary();
@@ -870,6 +935,7 @@ public class Parser extends Scanner {
    * properSlice: shortSlice | longSlice
    * longSlice: shortSlice ':' [test]
    * </pre>
+   * @return an expression node
    */
   PyExpr primary() {
     PyExpr primary = atom();
@@ -916,6 +982,7 @@ public class Parser extends Scanner {
    * <pre>
    * atom: NAME | NUMBER | STRING+ | '(' [testlist] ')' | '[' [testlist] ']' | '{' [dictmaker] '}' | '`' testlist '`'
    * </pre>
+   * @return a variable expression node, a literal expression node or some list constructor node
    */
   PyExpr atom() {
     if (is("NAME")) {
@@ -960,6 +1027,7 @@ public class Parser extends Scanner {
    * <pre>
    * dictmaker: test ':' test (',' test ':' test)* [',']
    * </pre>
+   * @return a dictionary construction expression node
    */
   PyExpr dictMaker() {
     PyExprList list = new PyExprList();
@@ -985,6 +1053,8 @@ public class Parser extends Scanner {
    * kwargs: kwitem (',' kwitem)*
    * kwitem: NAME '=' expr
    * </pre>
+   * @return two expression list nodes for argument expression and keyword expressions;
+   * the latter containing name literal nodes and general expression nodes
    */
   PyExprList[] arglist() {
     PyExprList args = new PyExprList();
@@ -1018,6 +1088,8 @@ public class Parser extends Scanner {
    * <pre>
    * subscriptlist: subscript (',' subscript)* [',']
    * </pre>
+   * @param tuple will contain <code>true</code> if result is a an extended subscript
+   * @return a list of subscript objects
    */
   List<PySubscript> subscriptlist(boolean[] tuple) {
     List<PySubscript> list = new ArrayList<PySubscript>();
@@ -1041,6 +1113,7 @@ public class Parser extends Scanner {
    * subscript: '...' | test | [test] ':' [test] [stride]
    * stride: ':' [test]
    * </pre>
+   * @return a subscript object
    */
   PySubscript subscript() {
     if (match("...")) {
@@ -1087,6 +1160,8 @@ public class Parser extends Scanner {
 
   /**
    * Returns a name, raising an error if the current token is not a name.
+   * @param message the error message raised if the current token is not a name
+   * @return a Python string object with the name
    */
   private PyString name(String message) {
     if (!is("NAME")) {
@@ -1097,6 +1172,7 @@ public class Parser extends Scanner {
 
   /**
    * Returns a possibly empty testlist.
+   * @return a possibly empty expression list node containing expression nodes
    */
   PyExprList optTestlist() {
     if (!isTestStart()) {
@@ -1107,6 +1183,7 @@ public class Parser extends Scanner {
 
   /**
    * Returns true if the current token is one of "first set" of the test production rule.
+   * @return <code>true</code> if the current token is in <code>FIRST(test)</code>
    */
   private boolean isTestStart() {
     return is("lambda") || is("not") || is("+") || is("-") || is("~") || isTargetStart();
@@ -1114,6 +1191,7 @@ public class Parser extends Scanner {
 
   /**
    * Returns true if the current token is one of "first set" of the target production rule.
+   * @return <code>true</code> if the current token is in <code>FIRST(target)</code>
    */
   private boolean isTargetStart() {
     return is("(") || is("[") || is("{") || is("`") || is("NAME") || is("NUMBER") || is("STRING");
@@ -1121,6 +1199,9 @@ public class Parser extends Scanner {
 
   /**
    * Returns true if the current token is of the given type and false otherwise.
+   * @param type the token type to test for; see {@link Scanner#nextToken()} for
+   * the list of valid token types
+   * @return <code>true</code> if the current token's type is the given type
    */
   private boolean is(String type) {
     return type.equals(tokenType);
@@ -1129,6 +1210,10 @@ public class Parser extends Scanner {
   /**
    * Returns true if current token is of the given type and advances to the next token.
    * Returns false otherwise with the current token unchanged.
+   * @param type the token type to test for; see {@link Scanner#nextToken()} for
+   * the list of valid token types
+   * @return <code>true</code> and consume the token if the current token's type is the
+   * given type; return <code>false</code> otherwise and do not consume anything
    */
   private boolean match(String type) {
     if (is(type)) {
@@ -1139,7 +1224,10 @@ public class Parser extends Scanner {
   }
 
   /**
-   * Raises an error if the current token is not of the given type.
+   * Raises an error if the current token is not of the given type. If the current
+   * token is of the given type, consume it.
+   * @param type the token type to test for; see {@link Scanner#nextToken()} for
+   * the list of valid token types
    */
   private void expect(String type) {
     if (!match(type)) {
