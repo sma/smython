@@ -12,20 +12,15 @@ import sma.py.rt.PyString;
  * Represents the <code>import</code> statement, see §6.11.
  */
 public class PyImportStmt extends PyStmt {
-  private final PyString module;
-  private final List<PyString> names;
+  private final List<PyString> modules;
 
-  public PyImportStmt(PyString module, List<PyString>names) {
-    this.module = module;
-    this.names = names;
+  public PyImportStmt(List<PyString> modules) {
+    this.modules = modules;
   }
 
   @Override
   public String toString() {
-    if (module == null) {
-      return "import " + names;
-    }
-    return "from " + module + " import " + (names == null ? "*" : names);
+    return "import " + list(modules, ",");
   }
 
   @Override

@@ -22,14 +22,30 @@ public class Scanner {
   private int ii;
   private boolean beginOfLine;
 
+  /**
+   * Constructs a new scanner for the given source string.
+   *
+   * @param source the Python source
+   */
   public Scanner(String source) {
     this.source = source;
     advance();
   }
 
+  /**
+   * The current token type; filled by calling {@link #advance()}.
+   */
   protected String tokenType;
+
+  /**
+   * The current token value; filled by calling {@link #advance()}.
+   */
   protected Object token;
 
+  /**
+   * Reads the next token and stores it as the new current token.
+   * @return the token value of the previous token
+   */
   public Object advance() {
     Object t = token;
     token = null;
@@ -37,7 +53,7 @@ public class Scanner {
     return t;
   }
 
-  // XXX this method is only used by the unit tests
+  // TODO this method is only used by the unit tests
   public String getToken() {
     String tt = tokenType;
     advance();
@@ -65,6 +81,11 @@ public class Scanner {
    * Comments start with '#' and go upto the end of the physical line.
    * <p>
    * Note: The first line of the source must not be indented.
+   *
+   * @return the token type, one of "INDENT", "DEDENT", "NEWLINE", "STRING", "NUMBER", "NAME",
+   * "!=", "%", "&", "(", ")", "*", "**", "+", ",", "-", ".", "...", "/", ":", ";", "<", "<<",
+   * "<=", "<>", "=", "==", ">", ">>", ">=", "[", "]", "{", "}", "^", "~", "|", "`", or a Python
+   * keyword; result is <code>null</code> if the end of the source string has been reached
    */
   private String nextToken() {
     // do we need to generate DEDENT tokens?
@@ -379,7 +400,7 @@ public class Scanner {
       back();
     }
     if (ch != 'L' && (value.longValue() >>> 32) == 0) {
-      token = Integer.valueOf(value.intValue());
+      token = value.intValue();
     } else {
       token = value;
     }
@@ -405,6 +426,7 @@ public class Scanner {
 
   /**
    * Returns the next character from the source, normalizing \r and \r\n to \n.
+   * @return next character or 0 if the end of the source string has been reached
    */
   private char next() {
     char ch = index++ < source.length() ? source.charAt(index - 1) : 0;
