@@ -405,7 +405,7 @@ public class Scanner {
     while (!end(ch, delim, shortString)) {
       if (ch == '\\') {
         ch = next();
-        if (ch != '\n') {
+        if (ch == '\n') {
           ch = next();
           continue;
         }
