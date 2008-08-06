@@ -990,6 +990,9 @@ public class Parser extends Scanner {
     }
     if (is("NUMBER")) {
       Object value = advance();
+      if (value instanceof Double) {
+        return new PyLiteral(PyObject.make((Double) value));
+      }
       return new PyLiteral(value instanceof BigInteger ? PyObject.make((BigInteger) value) : PyObject.make((Integer) value));
     }
     if (is("STRING")) {
@@ -1047,11 +1050,12 @@ public class Parser extends Scanner {
 
   /**
    * Parses the argument list of a function or method call, see 5.3.4.
+   * <b>Note:</b> the documentation used "expr" instead of "test" for "args".
    * <pre>
    * arglist: (args [',' kwargs] | kwargs) [',']
-   * args: expr (',' expr)*
+   * args: test (',' test)*
    * kwargs: kwitem (',' kwitem)*
-   * kwitem: NAME '=' expr
+   * kwitem: NAME '=' test
    * </pre>
    * @return two expression list nodes for argument expression and keyword expressions;
    * the latter containing name literal nodes and general expression nodes
@@ -1061,19 +1065,19 @@ public class Parser extends Scanner {
     PyExprList kwargs = new PyExprList(); 
     boolean seenkw = false;
     while (!is(")")) {
-      PyExpr expr = expr();
+      PyExpr arg = test();
       if (match("=")) {
-        if (!(expr instanceof PyIdentifier)) {
+        if (!(arg instanceof PyIdentifier)) {
           throw notify("name before = in arglist expected");
         }
-        kwargs.add(new PyLiteral(((PyIdentifier) expr).getName()));
-        kwargs.add(expr());
+        kwargs.add(new PyLiteral(((PyIdentifier) arg).getName()));
+        kwargs.add(test());
         seenkw = true;
       } else {
         if (seenkw) {
           throw notify("positional argument behind keyword argument");
         }
-        args.add(expr);
+        args.add(arg);
       }
       if (!is(")")) {
         expect(",");

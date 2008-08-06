@@ -486,4 +486,20 @@ public class ParserTest extends TestCase {
   private void emit(PyNode n) {
     //System.out.println(n);
   }
+
+  // more tests
+
+  // documentation used "expr" for "arglist" but it should be "test", see 5.3.4
+  public void testBug1() {
+    assertNotNull(parseStmt("map(lambda x: x)"));
+  }
+
+  // I do not support multiple assignments
+  public void testBug2() {  
+    //TODO assertNotNull(parseStmt("a = b = 'c'"));
+  }
+
+  public void testBug3() {
+    assertNotNull(parseStmt("(s&255, status >> 2)"));
+  }
 }
