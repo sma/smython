@@ -28,7 +28,7 @@
 * no len() builtin function
 * no docstrings for any kind of function, method or class
 * functions and methods lack most special attributes
-* clases most lack special atttributes
+* classes most lack special attributes
 * module objects are not implemented at all
 * no file objects
 * code objects are not supported (internal object, I use AST Nodes)
@@ -44,13 +44,13 @@
 * no builtin namespace, no support for globals
 * no __builtin__ namespace
 * no __main__ namespace
-* exceptions can be raised and caught but exeception hierarchy is non-existant
+* exceptions can be raised and caught but exception hierarchy is non-existant
 
 5. Expressions
 
 * arithmetic conversions (coercion rules) not implemented
 * no private name mangling
-* extended slicing not implementd (I didn't unstand what to do)
+* extended slicing not implemented (I didn't understand what to do)
 * assigning to tuple parameter in functions doesn't work
 * never checked whether % is correctly implemented
 * no divmod() builtin function

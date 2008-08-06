@@ -39,6 +39,7 @@ public class PyForStmt extends PyStmt {
       } catch (Py.BreakSignal s) {
         return;
       } catch (Py.ContinueSignal s) {
+        //noinspection UnnecessaryContinue
         continue;
       }
     }

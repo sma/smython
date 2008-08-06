@@ -33,6 +33,7 @@ public class PyWhileStmt extends PyStmt {
       } catch (Py.BreakSignal s) {
         return;
       } catch (Py.ContinueSignal s) {
+        //noinspection UnnecessaryContinue
         continue;
       }
     }
