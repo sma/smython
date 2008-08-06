@@ -8,7 +8,7 @@
 >>> a
 1
 
-### can we compare to numbers?
+### can we compare two numbers?
 >>> 0 < 1
 1
 >>> 1 < 0
@@ -36,8 +36,11 @@
 3
 
 ### positive asserts
+>>> a=0
 >>> assert 1
 >>> assert 1, 'ok'
+>>> a
+0
 
 ### negative assert
 >>> a=0

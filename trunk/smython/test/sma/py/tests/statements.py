@@ -12,6 +12,12 @@
 >>> a
 'ok'
 
+### short if True
+>>> a = ''; b = ''
+>>> if 1: a = 'ok'; b = 'ok'
+>>> a, b
+('ok', 'ok')
+
 ### if True with simple else 
 >>> a = ''
 >>> if 1:
@@ -52,6 +58,14 @@
 >>> a
 'ok'
 
+### if False with short else
+>>> a = ''; b = ''
+>>> if 0: a = 'not ok'; b = 'not ok'
+>>> else: a = 'ok'; b = 'ok'
+>>> a, b
+('ok', 'ok')
+
+
 ### simple if/elif combination
 >>> a = ''
 >>> if 0: pass
@@ -65,6 +79,14 @@
 >>> elif 1:
 ...   a = '..'
 ...   a = 'ok'
+>>> a
+'ok'
+
+### short if/elif combination
+>>> a = ''
+>>> if 0: pass
+>>> elif 1:
+...   a = '..'; a = 'ok'
 >>> a
 'ok'
 
@@ -83,6 +105,15 @@
 ... else:
 ...  a = '..'
 ...  a = 'not ok'
+>>> a
+'ok'
+
+### if/elif with short else
+>>> a = ''
+>>> if 0: pass
+... elif 1: a = 'ok'
+... else:
+...  a = '..'; a = 'not ok'
 >>> a
 'ok'
 
@@ -105,7 +136,10 @@
 'ok'
 
 ### while False
->>> while 0: assert 0
+>>> a = 'ok'
+>>> while 0: a = 'not ok'
+>>> a
+'ok'
 
 ### while False with else
 >>> a = 0
@@ -175,6 +209,17 @@
 >>> a
 3
 
+### while with continue and else
+>>> a = 0
+>>> while a < 2:
+...   if a == 1:
+...     a = 2
+...     continue
+...   a = a + 1
+... else: a = 4
+>>> a
+4
+
 ### simple for
 >>> a = 0
 >>> for b in (1, 2, 3): a = a + b
@@ -195,11 +240,24 @@
 >>> a, b
 (12, 3)
 
+### short for
+>>> a = 0
+>>> for b in (1, 2, 3): a = a + b; a = a + b
+>>> a, b
+(12, 3)
+
 ### for without elements
 >>> a = 0
 >>> for b in (): a = 1
 >>> a
 0
+
+### for without elements but with else
+>>> a = 0
+>>> for b in (): a = 1
+>>> else: a = 4
+>>> a
+4
 
 ### for with simple else
 >>> a = 0
@@ -217,7 +275,35 @@
 >>> a, b
 (3, 99)
 
-### TODO for with break and continue...
+### for with break
+>>> for a in 1, 2, 3:
+...   if a == 2: break
+>>> a
+2
+
+### for with break and else
+>>> for a in 1, 2, 3:
+...   if a == 2: break
+... else: a = 4
+>>> a
+2
+
+### for with continue
+>>> b = 0
+>>> for a in 1, 2:
+...   if a == 2: continue
+...   b = a
+>>> b
+1
+
+### for with continue and else
+>>> b = 0
+>>> for a in 1, 2:
+...   if a == 2: continue
+...   b = a
+... else: b = 3
+>>> b
+3
 
 ### try/finaly
 >>> a=0

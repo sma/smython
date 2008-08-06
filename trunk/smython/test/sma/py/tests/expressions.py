@@ -8,6 +8,14 @@
 1000000000000L
 >>> 99999999999999999L
 99999999999999999L
+>>> 011
+9
+>>> 012L
+10L
+>>> 0xAB
+171
+>>> 0xFFFFFFFFFFFFFFFF
+18446744073709551615L
 
 ### literals/strings
 
@@ -19,6 +27,18 @@
 'Hello'
 >>> "World"
 'World'
+>>> r''
+''
+>>> r""
+''
+>>> r'\n'
+'\n'
+>>> r"\n"
+'\n'
+>>> """
+... hallo
+... """
+'\nhallo\n'
 
 ### atoms/parenthesized forms
 

@@ -36,10 +36,26 @@ public class PyString extends PyImmutableSeq {
 
   @Override
   public String toString() {
-    if (str.indexOf('\'') != -1) {
-      return '"' + str + '"';
+    StringBuilder b = new StringBuilder(str.length());
+    char q = str.indexOf('\'') != -1 ? '"' : '\'';
+    b.append(q);
+    for (int i = 0, len = str.length(); i < len; i++) {
+      char c = str.charAt(i);
+      if (c >= ' ' && c <= '~') {
+        b.append(c);
+      } else {
+        b.append('\\');
+        if (c == '\n') {
+          b.append('n');
+        } else {
+          b.append('x');
+          b.append("0123456789abcdef".charAt(c / 16));
+          b.append("0123456789abcdef".charAt(c % 16));
+        }
+      }
     }
-    return '\'' + str + '\'';
+    b.append(q);
+    return b.toString();
   }
 
   // --------------------------------------------------------------------------------------------------------
