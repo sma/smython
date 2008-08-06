@@ -50,6 +50,7 @@ public class TestRunner {
         } else if (line.startsWith(">>> ") || line.startsWith("... ")) {
           lines = lines + line.substring(4) + "\n";
         } else if (line.trim().length() > 0) {
+          if (test == null) throw new IOException("missing ### header");
           test.addAssert(lines, line.trim());
           lines = "";
         }
