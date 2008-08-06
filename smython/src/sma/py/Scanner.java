@@ -493,8 +493,8 @@ public class Scanner {
   private String nextNumber(char ch) {
     StringBuilder b = new StringBuilder(32);
     int radix = 10;
-    b.append(ch);
     if (ch == '0') {
+      b.append(ch);
       ch = next();
       if (ch == 'x' || ch == 'X') {
         radix = 16;

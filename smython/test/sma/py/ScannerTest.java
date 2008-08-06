@@ -6,6 +6,8 @@ package sma.py;
 import sma.py.Scanner;
 import junit.framework.TestCase;
 
+import java.math.BigInteger;
+
 public class ScannerTest extends TestCase {
 
   public void testEmpty() {
@@ -134,6 +136,15 @@ public class ScannerTest extends TestCase {
     assertEquals("@1", new Scanner("'\\x401'").token);
     assertEquals("\b\n\r\t", new Scanner("'\\b\\n\\r\\t'").token);
     assertEquals("ab", new Scanner("'a\\\nb'").token);
+  }
+
+  public void testNumberValues() {
+    assertEquals(0, new Scanner("0").token);
+    assertEquals(1, new Scanner("1").token);
+    assertEquals(BigInteger.valueOf(2), new Scanner("2L").token);
+    assertEquals(BigInteger.valueOf(204), new Scanner("0xCcL").token);
+    assertEquals(3.14, new Scanner("31.4e-1").token);
+    assertEquals(3.14, new Scanner(".314e+1").token);
   }
 
   private String scan(String source) {
