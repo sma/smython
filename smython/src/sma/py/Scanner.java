@@ -20,7 +20,7 @@ public class Scanner {
   private int lineIndent;
   private final int[] indents = new int[32];
   private int ii;
-  private boolean beginOfLine;
+  private boolean beginOfLine = true;
 
   /**
    * Constructs a new scanner for the given source string.
