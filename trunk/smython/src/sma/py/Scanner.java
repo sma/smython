@@ -345,19 +345,6 @@ public class Scanner {
     case 'x':
     case 'y':
     case 'z':
-      if (ch == 'r') {
-        char delim = next();
-        if (delim == '"' || delim == '\'') {
-          return nextString(delim, true);
-        }
-        back();
-      }
-      if (ch == 'u') {
-        char delim = next();
-        if (delim == '"' || delim == '\'') {
-          return nextString(delim, false);
-        }
-      }
       return nextNameOrKeyword(ch);
     case '{':
       openParens++;
@@ -421,53 +408,60 @@ public class Scanner {
       }
     }
     while (!end(ch, delim, shortString)) {
-      if (!raw && ch == '\\') {
+      if (ch == '\\') {
         ch = next();
-        if (ch == '\n') {
-          ch = next();
-          continue;
-        }
-        if (ch == 'a') {
-          ch = '\u0007';
-        } else if (ch == 'b') {
-          ch = '\b';
-        } else if (ch == 'f') {
-          ch = '\f';
-        } else if (ch == 'n') {
-          ch = '\n';
-        } else if (ch == 'r') {
-          ch = '\r';
-        } else if (ch == 't') {
-          ch = '\t';
-        } else if (ch == 'v') {
-          ch = '\u000b';
-        } else if (ch == 'x') {
-          int n1 = Character.digit(next(), 16);
-          int n2 = Character.digit(next(), 16);
-          if (n1 == -1 || n2 == -1) {
-            throw notify("invalid escape");
-          }
-          ch = (char) (n1 * 16 + n2);
-        } else if (ch >= '0' && ch <= '7') {
-          int value = Character.digit(ch, 8);
-          ch = next();
-          if (ch >= '0' && ch <= '7') {
-            value = value * 8 + Character.digit(ch, 8);
-            ch = next();
-            if (ch >= '0' && ch <= '7') {
-              value = value * 8 + Character.digit(ch, 8);
-            } else {
-              back();
-            }
-          } else {
-            back();
-          }
-          ch = (char) value;
-        } else if (ch != '\\' && ch != '"' && ch != '\'') {
+        if (raw) {
           if (ch == 0) {
             throw notify("invalid escape");
           }
           b.append('\\');
+        } else {
+          if (ch == '\n') {
+            ch = next();
+            continue;
+          }
+          if (ch == 'a') {
+            ch = '\u0007';
+          } else if (ch == 'b') {
+            ch = '\b';
+          } else if (ch == 'f') {
+            ch = '\f';
+          } else if (ch == 'n') {
+            ch = '\n';
+          } else if (ch == 'r') {
+            ch = '\r';
+          } else if (ch == 't') {
+            ch = '\t';
+          } else if (ch == 'v') {
+            ch = '\u000b';
+          } else if (ch == 'x') {
+            int n1 = Character.digit(next(), 16);
+            int n2 = Character.digit(next(), 16);
+            if (n1 == -1 || n2 == -1) {
+              throw notify("invalid escape");
+            }
+            ch = (char) (n1 * 16 + n2);
+          } else if (ch >= '0' && ch <= '7') {
+            int value = Character.digit(ch, 8);
+            ch = next();
+            if (ch >= '0' && ch <= '7') {
+              value = value * 8 + Character.digit(ch, 8);
+              ch = next();
+              if (ch >= '0' && ch <= '7') {
+                value = value * 8 + Character.digit(ch, 8);
+              } else {
+                back();
+              }
+            } else {
+              back();
+            }
+            ch = (char) value;
+          } else if (ch != '\\' && ch != '"' && ch != '\'') {
+            if (ch == 0) {
+              throw notify("invalid escape");
+            }
+            b.append('\\');
+          }
         }
       }
       b.append(ch);
@@ -553,6 +547,20 @@ public class Scanner {
   }
 
   private String nextNameOrKeyword(char ch) {
+    if (ch == 'r' || ch == 'R') {
+      char delim = next();
+      if (delim == '"' || delim == '\'') {
+        return nextString(delim, true);
+      }
+      back();
+    }
+    if (ch == 'u' || ch == 'U') {
+      char delim = next();
+      if (delim == '"' || delim == '\'') {
+        return nextString(delim, false);
+      }
+      back();
+    }
     StringBuilder b = new StringBuilder(32);
     while (Character.isLetter(ch) || Character.isDigit(ch) || ch == '_') {
       b.append(ch);

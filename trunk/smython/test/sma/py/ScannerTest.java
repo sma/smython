@@ -48,6 +48,7 @@ public class ScannerTest extends TestCase {
     assertEquals("STRING", scan("'abc' "));
     assertEquals("STRING", scan("'\"'"));
     assertEquals("STRING", scan("r'\"'"));
+    assertEquals("STRING", scan("r'\\''"));
   }
 
   public void testString2() {
@@ -57,6 +58,7 @@ public class ScannerTest extends TestCase {
     assertEquals("STRING", scan("\"abc\" "));
     assertEquals("STRING", scan("\"'\""));
     assertEquals("STRING", scan("r\"'\""));
+    assertEquals("STRING", scan("r\"\\\"\""));
   }
 
   public void testMultilineString1() {
@@ -65,6 +67,7 @@ public class ScannerTest extends TestCase {
     assertEquals("STRING", scan("'''\n\n'''"));
     assertEquals("STRING", scan("'''' '''"));
     assertEquals("STRING", scan("''''' '''"));
+    assertEquals("STRING", scan("r'''\n'''"));
   }
 
   public void testMultilineString2() {
@@ -73,6 +76,7 @@ public class ScannerTest extends TestCase {
     assertEquals("STRING", scan("\"\"\"\n\n\"\"\""));
     assertEquals("STRING", scan("\"\"\"\" \"\"\""));
     assertEquals("STRING", scan("\"\"\"\"\" \"\"\""));
+    assertEquals("STRING", scan("r\"\"\"\n\"\"\""));
   }
 
   public void testStringEscapes() {
@@ -87,6 +91,7 @@ public class ScannerTest extends TestCase {
     assertEquals("NAME", scan("__init__ "));
     assertEquals("NAME NAME", scan("a1 b2 "));
     assertEquals("NAME NAME", scan("a1 b2 # comment"));
+    assertEquals("NAME NAME NAME", scan("r u a"));
   }
 
   public void testKeyword() {
