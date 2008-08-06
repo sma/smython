@@ -221,13 +221,18 @@ public class Scanner {
     case '-':
       return "-";
     case '.':
-      if (next() == '.') {
+      ch = next();
+      if (ch == '.') {
         if (next() == '.') {
           return "...";
         }
         back();
       }
       back();
+      if (Character.isDigit(ch)) {
+        back();
+        return nextNumber('0');
+      }
       return ".";
     case '/':
       return "/";
@@ -346,6 +351,12 @@ public class Scanner {
           return nextString(delim, true);
         }
         back();
+      }
+      if (ch == 'u') {
+        char delim = next();
+        if (delim == '"' || delim == '\'') {
+          return nextString(delim, false);
+        }
       }
       return nextNameOrKeyword(ch);
     case '{':
@@ -487,15 +498,53 @@ public class Scanner {
 
   private String nextNumber(char ch) {
     StringBuilder b = new StringBuilder(32);
-    while (Character.isDigit(ch)) {
+    int radix = 10;
+    b.append(ch);
+    if (ch == '0') {
+      ch = next();
+      if (ch == 'x' || ch == 'X') {
+        radix = 16;
+        ch = next();
+      } else if (ch != '.'){
+        radix = 8;
+      }
+    }
+    while (Character.digit(ch, radix) != -1) {
       b.append(ch);
       ch = next();
     }
-    BigInteger value = new BigInteger(b.toString());
-    if (ch != 'L') {
+    if (radix == 10) {
+      if (ch == '.' || ch == 'e' || ch == 'E') {
+        if (ch == '.') {
+          b.append(ch);
+          ch = next();
+          while (Character.isDigit(ch)) {
+            b.append(ch);
+            ch = next();
+          }
+        }
+        if (ch == 'e' || ch == 'E') {
+          b.append(ch);
+          ch = next();
+          if (ch == '-' || ch == '+') {
+            b.append(ch);
+            ch = next();
+          }
+          while (Character.isDigit(ch)) {
+            b.append(ch);
+            ch = next();
+          }
+        }
+        back();
+        token = Double.valueOf(b.toString());
+        return "NUMBER";
+      }
+    }
+    BigInteger value = new BigInteger(b.toString(), radix);
+    if (ch != 'L' && ch != 'l') {
       back();
     }
-    if (ch != 'L' && (value.longValue() >>> 32) == 0) {
+    if (ch != 'L' && ch != 'l' && (value.longValue() >>> 32) == 0) {
       token = value.intValue();
     } else {
       token = value;
