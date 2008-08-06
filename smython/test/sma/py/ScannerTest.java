@@ -30,6 +30,17 @@ public class ScannerTest extends TestCase {
     assertEquals("NUMBER", scan("8905488580394859083405834958345834L"));
   }
 
+  public void testDouble() {
+    assertEquals("NUMBER +", scan("1.+"));
+    assertEquals("NUMBER +", scan("1.2+"));
+    assertEquals("NUMBER +", scan("1e6+"));
+    assertEquals("NUMBER +", scan("1.2e6+"));
+    assertEquals("NUMBER +", scan("1.2e-6+"));
+    assertEquals("NUMBER +", scan("1.2e+6+"));
+    assertEquals("NUMBER +", scan(".1+"));
+    assertEquals("NUMBER +", scan(".1e6+"));
+  }
+
   public void testString1() {
     assertEquals("STRING", scan("''"));
     assertEquals("STRING", scan("'' "));
