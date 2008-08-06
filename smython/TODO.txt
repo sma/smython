@@ -7,10 +7,7 @@
 
 2. Lexical Analysis
 
-* scanner ignores \t
 * scanner allows spaces or comments after trailing \ (extension)
-* no multiline strings
-* no string escapes
 * no rawstrings
 * everything is considered to be unicode
 * no floats, no complex numbers

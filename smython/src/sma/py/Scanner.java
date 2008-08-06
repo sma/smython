@@ -61,7 +61,17 @@ public class Scanner {
   }
 
   protected RuntimeException notify(String message) {
-    return new RuntimeException(message + " in " + source);
+    return new RuntimeException(message + " in line " + line() + " of " + source);
+  }
+
+  private int line() {
+    int line = 1;
+    for (int i = 0, end = Math.min(index, source.length() - 1); i < end; i++) {
+      if (source.charAt(i) == '\r' && source.charAt(i + 1) != '\n' || source.charAt(i) == '\n') {
+        line += 1;
+      }
+    }
+    return line;
   }
 
   /**
@@ -99,7 +109,7 @@ public class Scanner {
     if (openParens > 0) {
       // we're inside an open (, [ or {, no logical line start possible
       while (true) {
-        while (ch == ' ' || ch == '\n') { // skip upto interesting char
+        while (ch == ' ' || ch == '\n' || ch == '\t') { // skip upto interesting char
           ch = next();
         }
         if (ch == '#') { // also skip comment
@@ -118,7 +128,10 @@ public class Scanner {
         int indent;
         while (true) { // search for non-empty line
           indent = 0;
-          while (ch == ' ') { // compute indentation
+          while (ch == ' ' || ch == '\t') { // compute indentation
+            if (ch == '\t') {
+              indent = (indent / 8 + 1) * 8 - 1;
+            }
             ch = next();
             indent++;
           }
@@ -146,7 +159,7 @@ public class Scanner {
         }
       } else {
         while (true) {
-          while (ch == ' ') {
+          while (ch == ' ' || ch == '\t') {
             ch = next();
           }
           if (ch == '#') {
@@ -261,7 +274,7 @@ public class Scanner {
       return ">";
     case '?':
     case '@':
-      throw notify("invalid char");
+      break;
     case 'A':
     case 'B':
     case 'C':
@@ -343,12 +356,12 @@ public class Scanner {
         return nextNameOrKeyword(ch);
       }
     }
-    throw notify("invalid character " + ch);
+    throw notify("invalid character " + ch + " (" + (int) ch + ")");
   }
 
   private String dedent() {
     if (lineIndent > indents[--ii]) {
-      throw notify("inconsistent indent");
+      throw notify("inconsistent indent " + lineIndent + " vs " + indents[ii]);
     }
     return "DEDENT";
   }
@@ -363,7 +376,7 @@ public class Scanner {
 
   private char skipLineContinuation() {
     char ch = next();
-    while (ch == ' ') {
+    while (ch == ' ' || ch == '\t') {
       ch = next();
     }
     if (ch == '#') {
@@ -377,16 +390,77 @@ public class Scanner {
 
   private String nextString(char delim) {
     StringBuilder b = new StringBuilder(256);
+    boolean shortString = true;
     char ch = next();
-    while (ch != delim) {
-      if (ch == 0) {
-        throw notify("unterminated string literal");
+    if (ch == delim) {
+      ch = next();
+      if (ch == delim) {
+        shortString = false;
+        ch = next();
+      } else {
+        back();
+        ch = delim;
+      }
+    }
+    while (!end(ch, delim, shortString)) {
+      if (ch == '\\') {
+        ch = next();
+        if (ch != '\n') {
+          ch = next();
+          continue;
+        }
+        if (ch == 'a') {
+          ch = '\u0007';
+        } else if (ch == 'b') {
+          ch = '\b';
+        } else if (ch == 'f') {
+          ch = '\f';
+        } else if (ch == 'n') {
+          ch = '\n';
+        } else if (ch == 'r') {
+          ch = '\r';
+        } else if (ch == 't') {
+          ch = '\t';
+        } else if (ch == 'v') {
+          ch = '\u000b';
+        } else if (ch == 'x') {
+          int n1 = Character.digit(next(), 16);
+          int n2 = Character.digit(next(), 16);
+          if (n1 == -1 || n2 == -1) {
+            throw notify("invalid escape");
+          }
+          ch = (char) (n1 * 16 + n2);
+        } else if (ch != '\\' && ch != '"' && ch != '\'') {
+          if (ch == 0) {
+            throw notify("invalid escape");
+          }
+          b.append('\\');
+        }
       }
       b.append(ch);
       ch = next();
     }
     token = b.toString();
     return "STRING";
+  }
+
+  private boolean end(char ch, char delim, boolean shortString) {
+    if (ch == 0) {
+      throw notify("unterminated string literal");
+    }
+    if (ch == delim) {
+      if (shortString) {
+        return true;
+      }
+      char ch1 = next();
+      char ch2 = next();
+      if (ch1 == delim && ch2 == delim) {
+        return true;
+      }
+      back();
+      back();
+    }
+    return false;
   }
 
   private String nextNumber(char ch) {
@@ -435,6 +509,10 @@ public class Scanner {
         index++;
       }
       ch = '\n';
+    }
+    // XXX ignore ^L
+    if (ch == '\u000c') {
+      ch = ' ';
     }
     return ch;
   }
