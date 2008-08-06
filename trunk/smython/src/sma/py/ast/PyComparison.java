@@ -91,7 +91,7 @@ public class PyComparison extends PyExpr {
   }
 
   public static enum Op {
-    LT, GT, LE, GE, EQ, NE, IN, NOT_IN, IS, IS_NOT;
+    LT, GT, LE, GE, EQ, NE, IN, NOT_IN, IS, IS_NOT
   }
 
 }

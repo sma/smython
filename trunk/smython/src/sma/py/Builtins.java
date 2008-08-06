@@ -53,7 +53,7 @@ public class Builtins {
 
   @Builtin("x")
   public static PyObject abs(PyObject obj) {
-    return PyObject.None;
+    return obj.abs();
   }
   
   private static final PyString __ABS__ = PyObject.intern("__abs__");

@@ -56,7 +56,7 @@ public class PyClass extends PyCallable {
   @Override
   public void setAttr(PyString name, PyObject value) {
     if (name == __NAME__) {
-      name = (PyString) value;
+      this.name = (PyString) value;
     } else if (name == __BASES__) {
       bases = (PyTuple) value;
     } else if (name == __DICT__) {

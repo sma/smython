@@ -106,9 +106,6 @@ public class PyInstance extends PyCallable {
       return f.call(this).truth();
     }
     f = clasz.getAttr0(intern("__len__")); //TODO constant
-    if (f != null) {
-      return f.call(this).truth();
-    }
-    return true;
+    return f == null || f.call(this).truth();
   }
 }
