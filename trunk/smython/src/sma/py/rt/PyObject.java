@@ -89,6 +89,12 @@ public abstract class PyObject implements Comparable<PyObject> {
     return value.length() == 0 ? EmptyString : new PyString(value);
   }
 
+  public static PyObject make(Double value) {
+    return make(value.intValue()); //TODO implement floats
+  }
+
+
+
   // --------------------------------------------------------------------------------------------------------
   // predefined constants
 

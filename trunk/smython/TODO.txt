@@ -64,6 +64,7 @@
 * global: ignored, doesn't work with the current way the parser constructs the AST
 * exec: not supported
 * no multiple assignments
+* no * and ** expansion in calls (new in 1.6)
 
 7. Compound statements
 

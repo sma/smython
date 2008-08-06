@@ -12,9 +12,11 @@ public class PyReader {
 
 
   public static void main(String[] args) throws IOException {
+    args = new String[]{"/Users/sma/Desktop/Python-1.6.1/Lib/test"};
     for (String name : args) {
       read(new File(name));
     }
+    //scan(new File("/Users/sma/Desktop/Python-1.6.1/Lib/dos-8x3/test_gra.py"));
   }
 
   private static void read(File dir) throws IOException {
@@ -28,6 +30,7 @@ public class PyReader {
         read(file);
       } else {
         scan(file);
+        parse(file);
       }
     }
   }
@@ -50,5 +53,30 @@ public class PyReader {
     while (scanner.tokenType != null) {
       scanner.advance();
     }
+  }
+
+  private static void parse(File file) throws IOException {
+    if (file.getName().equals("pystone.py")) return;
+    if (file.getName().equals("sortperf.py")) return;
+    if (file.getName().equals("test_b1.py")) return;
+    if (file.getName().equals("test_b2.py")) return;
+    if (file.getName().equals("test_cpickle.py")) return;
+    if (file.getName().equals("test_extcall.py")) return;
+
+    StringBuilder b = new StringBuilder(16384);
+    char[] buf = new char[4096];
+    FileReader r = new FileReader(file);
+    try {
+      int len;
+      while ((len = r.read(buf)) != -1) {
+        b.append(buf, 0, len);
+      }
+    } finally {
+      r.close();
+    }
+
+    System.out.println("Parsing " + file.getPath());
+    Parser parser = new Parser(b.toString());
+    parser.interactiveInput();
   }
 }
