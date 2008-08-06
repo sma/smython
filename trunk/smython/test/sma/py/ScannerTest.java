@@ -36,6 +36,7 @@ public class ScannerTest extends TestCase {
     assertEquals("STRING", scan("'abc'"));
     assertEquals("STRING", scan("'abc' "));
     assertEquals("STRING", scan("'\"'"));
+    assertEquals("STRING", scan("r'\"'"));
   }
 
   public void testString2() {
@@ -44,6 +45,7 @@ public class ScannerTest extends TestCase {
     assertEquals("STRING", scan("\"abc\""));
     assertEquals("STRING", scan("\"abc\" "));
     assertEquals("STRING", scan("\"'\""));
+    assertEquals("STRING", scan("r\"'\""));
   }
 
   public void testMultilineString1() {
@@ -107,6 +109,15 @@ public class ScannerTest extends TestCase {
   public void testComment() {
     assertEquals("NUMBER", scan("1 \n# comment"));
     assertEquals("NUMBER", scan("# comment \n0"));
+  }
+
+  public void testEscapes() {
+    assertEquals("\u0000", new Scanner("'\\0'").token);
+    assertEquals("\nx", new Scanner("'\\12x'").token);
+    assertEquals("\n3", new Scanner("'\\0123'").token);
+    assertEquals("@1", new Scanner("'\\x401'").token);
+    assertEquals("\b\n\r\t", new Scanner("'\\b\\n\\r\\t'").token);
+    assertEquals("ab", new Scanner("'a\\\nb'").token);
   }
 
   private String scan(String source) {
