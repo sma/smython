@@ -9,21 +9,22 @@ import junit.framework.TestCase;
 public class ScannerTest extends TestCase {
 
   public void testEmpty() {
-    assertEquals("", scan(""));
-    assertEquals("", scan("\n"));
-    assertEquals("", scan(" \n"));
-    assertEquals("", scan("\n\n\n"));
-    assertEquals("", scan("# comment"));
-    assertEquals("", scan("# comment\n"));
-    assertEquals("", scan(" # comment\n"));
-    assertEquals("", scan(" # comment\n "));
-    assertEquals("", scan(" # comment\n \n"));
+    assertEquals("", scan("", false));
+    assertEquals("", scan("\n", false));
+    assertEquals("", scan(" \n ", false));
+    assertEquals("", scan("\n\n\n", false));
+    assertEquals("", scan("# comment", false));
+    assertEquals("", scan("# comment\n", false));
+    assertEquals("", scan(" # comment\n", false));
+    assertEquals("", scan(" # comment\n ", false));
+    assertEquals("", scan(" # comment\n \n", false));
+    assertEquals("", scan(" # comment\n \n # comment", false));
   }
 
   public void testNumber() {
     assertEquals("NUMBER", scan("42"));
-    assertEquals("NUMBER", scan(" 42 "));
-    assertEquals("NUMBER NUMBER NUMBER", scan(" 1 2 3 "));
+    assertEquals("NUMBER", scan("\n42 "));
+    assertEquals("NUMBER NUMBER NUMBER", scan("\n1 2 3 "));
     assertEquals("NUMBER", scan("8905488580394859083405834958345834"));
     assertEquals("NUMBER", scan("42L"));
     assertEquals("NUMBER", scan("8905488580394859083405834958345834L"));
@@ -31,23 +32,23 @@ public class ScannerTest extends TestCase {
 
   public void testString1() {
     assertEquals("STRING", scan("''"));
-    assertEquals("STRING", scan(" '' "));
+    assertEquals("STRING", scan("'' "));
     assertEquals("STRING", scan("'abc'"));
-    assertEquals("STRING", scan(" 'abc' "));
-    assertEquals("STRING", scan(" '\"' "));
+    assertEquals("STRING", scan("'abc' "));
+    assertEquals("STRING", scan("'\"'"));
   }
 
   public void testString2() {
     assertEquals("STRING", scan("\"\""));
-    assertEquals("STRING", scan(" \"\" "));
+    assertEquals("STRING", scan("\"\" "));
     assertEquals("STRING", scan("\"abc\""));
-    assertEquals("STRING", scan(" \"abc\" "));
-    assertEquals("STRING", scan(" \"'\" "));
+    assertEquals("STRING", scan("\"abc\" "));
+    assertEquals("STRING", scan("\"'\""));
   }
 
   public void testMultilineString1() {
     assertEquals("STRING", scan("''''''"));
-    assertEquals("STRING", scan(" ''' ''' "));
+    assertEquals("STRING", scan("''' ''' "));
     assertEquals("STRING", scan("'''\n\n'''"));
     assertEquals("STRING", scan("'''' '''"));
     assertEquals("STRING", scan("''''' '''"));
@@ -55,7 +56,7 @@ public class ScannerTest extends TestCase {
 
   public void testMultilineString2() {
     assertEquals("STRING", scan("\"\"\"\"\"\""));
-    assertEquals("STRING", scan(" \"\"\" \"\"\" "));
+    assertEquals("STRING", scan("\"\"\" \"\"\" "));
     assertEquals("STRING", scan("\"\"\"\n\n\"\"\""));
     assertEquals("STRING", scan("\"\"\"\" \"\"\""));
     assertEquals("STRING", scan("\"\"\"\"\" \"\"\""));
@@ -69,10 +70,10 @@ public class ScannerTest extends TestCase {
 
   public void testName() {
     assertEquals("NAME", scan("foo"));
-    assertEquals("NAME", scan(" bar_baz"));
+    assertEquals("NAME", scan("bar_baz"));
     assertEquals("NAME", scan("__init__ "));
-    assertEquals("NAME NAME", scan(" a1 b2 "));
-    assertEquals("NAME NAME", scan(" a1 b2 # comment"));
+    assertEquals("NAME NAME", scan("a1 b2 "));
+    assertEquals("NAME NAME", scan("a1 b2 # comment"));
   }
 
   public void testKeyword() {
@@ -101,6 +102,11 @@ public class ScannerTest extends TestCase {
     assertEquals("def NEWLINE try", scan("def # comment\\\ntry"));
     assertEquals("( def try )", scan("(def \n try)"));
     assertEquals("( def try )", scan("(def \\\n try)"));
+  }
+
+  public void testComment() {
+    assertEquals("NUMBER", scan("1 \n# comment"));
+    assertEquals("NUMBER", scan("# comment \n0"));
   }
 
   private String scan(String source) {
