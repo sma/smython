@@ -195,13 +195,13 @@ public class Scanner {
       back();
       break; // fall into exception
     case '"':
-      return nextString(ch);
+      return nextString(ch, false);
     case '%':
       return "%";
     case '&':
       return "&";
     case '\'':
-      return nextString(ch);
+      return nextString(ch, false);
     case '(':
       openParens++;
       return "(";
@@ -340,6 +340,13 @@ public class Scanner {
     case 'x':
     case 'y':
     case 'z':
+      if (ch == 'r') {
+        char delim = next();
+        if (delim == '"' || delim == '\'') {
+          return nextString(delim, true);
+        }
+        back();
+      }
       return nextNameOrKeyword(ch);
     case '{':
       openParens++;
@@ -388,7 +395,7 @@ public class Scanner {
     return next();
   }
 
-  private String nextString(char delim) {
+  private String nextString(char delim, boolean raw) {
     StringBuilder b = new StringBuilder(256);
     boolean shortString = true;
     char ch = next();
@@ -403,7 +410,7 @@ public class Scanner {
       }
     }
     while (!end(ch, delim, shortString)) {
-      if (ch == '\\') {
+      if (!raw && ch == '\\') {
         ch = next();
         if (ch == '\n') {
           ch = next();
@@ -430,6 +437,21 @@ public class Scanner {
             throw notify("invalid escape");
           }
           ch = (char) (n1 * 16 + n2);
+        } else if (ch >= '0' && ch <= '7') {
+          int value = Character.digit(ch, 8);
+          ch = next();
+          if (ch >= '0' && ch <= '7') {
+            value = value * 8 + Character.digit(ch, 8);
+            ch = next();
+            if (ch >= '0' && ch <= '7') {
+              value = value * 8 + Character.digit(ch, 8);
+            } else {
+              back();
+            }
+          } else {
+            back();
+          }
+          ch = (char) value;
         } else if (ch != '\\' && ch != '"' && ch != '\'') {
           if (ch == 0) {
             throw notify("invalid escape");
