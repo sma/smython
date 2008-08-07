@@ -641,14 +641,18 @@ public class Parser extends Scanner {
    * @return an assigment statement node or an expression statement node
    */
   PyStmt exprStmt() {
+    return new PyExprStmt(assignStmt());
+  }
+
+  PyExprList assignStmt() {
     PyExprList list = testlist();
     if (match("=")) {
       if (!list.isTarget()) {
         throw notify("expected targetlist");
       }
-      return new PyAssignStmt(list, testlist());
+      list.setValues(assignStmt());
     }
-    return new PyExprStmt(list);
+    return list;
   }
 
   /**

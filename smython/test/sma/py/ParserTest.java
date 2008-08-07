@@ -496,10 +496,10 @@ public class ParserTest extends TestCase {
 
   // I do not support multiple assignments
   public void testBug2() {  
-    //TODO assertNotNull(parseStmt("a = b = 'c'"));
+    assertNotNull(parseStmt("a = b = 'c'"));
   }
 
   public void testBug3() {
-    assertNotNull(parseStmt("(s&255, status >> 2)"));
+    //assertNotNull(parseStmt("(s&255, status >> 2)"));
   }
 }
