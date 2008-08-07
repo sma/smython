@@ -16,10 +16,13 @@ import sma.py.rt.PyTuple;
  * or deletion node and can either evaluate all expressions of the list as tuple, as a dictionary
  * or assign to those expressions. If the expression list has no trailing comma and just one 
  * element, the expression list evaluates to a single value and not a tuple.
+ *
+ * Also represents the assignment statement, see §6.3.
  */
 public class PyExprList extends PyNode {
   private final List<PyExpr> expressions;
   private boolean tuple;
+  private PyExprList values;
 
   public PyExprList() {
     this.expressions = new ArrayList<PyExpr>();
@@ -37,6 +40,10 @@ public class PyExprList extends PyNode {
     this.tuple = tuple;
   }
 
+  public void setValues(PyExprList values) {
+    this.values = values;
+  }
+
   public int size() {
     return expressions.size();
   }
@@ -47,7 +54,7 @@ public class PyExprList extends PyNode {
 
   @Override
   public String toString() {
-    return list(expressions, ",") + (tuple ? "," : "");
+    return list(expressions, ",") + (tuple ? "," : "") + (values != null ? " = " + values : "");
   }
 
   /**
@@ -55,6 +62,9 @@ public class PyExprList extends PyNode {
    * all results of the evaluation.
    */
   public PyObject eval(PyFrame frame) {
+    if (values != null) {
+      return assign(frame, values.eval(frame));
+    }
     if (!tuple && expressions.size() == 1) {
       return expressions.get(0).eval(frame);
     }
@@ -68,7 +78,6 @@ public class PyExprList extends PyNode {
       objects[i] = expressions.get(i).eval(frame);
     }
     return new PyTuple(objects);
-    
   }
   
   public PyDict evalAsDictionary(PyFrame frame) {
@@ -95,7 +104,7 @@ public class PyExprList extends PyNode {
     return true;
   }
 
-  public void assign(PyFrame frame, PyObject value) {
+  public PyObject assign(PyFrame frame, PyObject value) {
     if (!tuple && expressions.size() == 1) {
       expressions.get(0).assign(frame, value);
     } else {
@@ -111,6 +120,7 @@ public class PyExprList extends PyNode {
         expressions.get(i).assign(frame, tuple.get(i));
       }
     }
+    return value;
   }
 
   public void del(PyFrame frame) {
