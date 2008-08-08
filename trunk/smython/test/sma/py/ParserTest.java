@@ -490,16 +490,24 @@ public class ParserTest extends TestCase {
   // more tests
 
   // documentation used "expr" for "arglist" but it should be "test", see 5.3.4
-  public void testBug1() {
+  public void testArglistExpr() {
     assertNotNull(parseStmt("map(lambda x: x)"));
   }
 
-  // I do not support multiple assignments
-  public void testBug2() {  
-    assertNotNull(parseStmt("a = b = 'c'"));
+  // documentation does not mention "*args" and "**keyword" syntax but tests excercise it, see 5.3.4
+  public void testUnsplice() {
+    assertNotNull(parseStmt("foo(*args)"));
+    assertNotNull(parseStmt("foo(a, b, *args)"));
+    assertNotNull(parseStmt("foo(a, b=0, *args)"));
+    assertNotNull(parseStmt("foo(a=0, b=0, *args)"));
+    assertNotNull(parseStmt("foo(**kwargs)"));
+    assertNotNull(parseStmt("foo(a, b=0, **kwargs)"));
+    assertNotNull(parseStmt("foo(*args, **kwargs)"));
+    assertNotNull(parseStmt("foo(a, b=0, *args, **kwargs)"));
   }
 
-  public void testBug3() {
-    //assertNotNull(parseStmt("(s&255, status >> 2)"));
+  // I do not support multiple assignments
+  public void testMultipleAssignment() {
+    assertNotNull(parseStmt("a = b = 'c'"));
   }
 }
