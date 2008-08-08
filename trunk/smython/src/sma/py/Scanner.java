@@ -529,13 +529,15 @@ public class Scanner {
             ch = next();
           }
         }
-        back();
+        if (ch != 'j' && ch != 'J') { //TODO implement complex numbers
+          back();
+        }
         token = Double.valueOf(b.toString());
         return "NUMBER";
       }
     }
     BigInteger value = new BigInteger(b.toString(), radix);
-    if (ch != 'L' && ch != 'l') {
+    if (ch != 'L' && ch != 'l' && ch != 'j' && ch != 'J') { //TODO implement complex numbers
       back();
     }
     if (ch != 'L' && ch != 'l' && (value.longValue() >>> 32) == 0) {
