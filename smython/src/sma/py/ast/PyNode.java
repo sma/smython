@@ -13,14 +13,6 @@ import sma.py.rt.PyObject;
  */
 public abstract class PyNode {
   /**
-   * Evaluates the expression node in the context of the given frame.
-   *
-   * @param frame the current context, storing local and global variables
-   * @return the result of the evaluation
-   */
-  public abstract PyObject eval(PyFrame frame);
-
-  /**
    * Converts the given list into a string that contains the string representation of the
    * list elements delimited by the first character of the also given delimiter string,
    * optionally enclosed in the second and third character of the delimiter string

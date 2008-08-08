@@ -77,7 +77,7 @@ public class PyUserFunction extends PyFunction {
     }
 
     try {
-      suite.eval(frame);
+      suite.execute(frame);
     } catch (Py.ReturnSignal s) {
       return s.getResult();
     }

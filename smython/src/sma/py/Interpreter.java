@@ -86,7 +86,7 @@ public class Interpreter {
     Reader reader = new InputStreamReader(getClass().getResourceAsStream("builtins.py"));
     try {
       try {
-        eval(reader);
+        execute(reader);
       } finally {
         reader.close();
       }
@@ -99,18 +99,30 @@ public class Interpreter {
     frame.bind(PyObject.intern(name), value);
   }
 
+  public void execute(Reader reader) throws IOException {
+    execute(readAll(reader));
+  }
+
+  public void execute(String source) {
+    new Parser(source).interactiveInput().execute(frame);
+  }
+
   public PyObject eval(Reader reader) throws IOException {
+    return eval(readAll(reader));
+  }
+  
+  public PyObject eval(String source) {
+    return new Parser(source).interactiveInput().eval(frame);
+  }
+
+  private String readAll(Reader reader) throws IOException {
     reader = new BufferedReader(reader);
     StringBuilder b = new StringBuilder();
     int ch;
     while ((ch = reader.read()) != -1) {
       b.append((char) ch);
     }
-    return eval(b.toString());
-  }
-  
-  public PyObject eval(String source) {
-    return new Parser(source).interactiveInput().eval(frame);
+    return b.toString();
   }
   
   public static void main(String[] args) {

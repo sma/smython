@@ -37,7 +37,7 @@ public class PyExecStmt extends PyStmt {
       }
       evalFrame = new PyFrame(gdict, ldict);
     }
-    new Parser(expr.eval(frame).str().value()).interactiveInput().eval(evalFrame); //TODO
+    new Parser(expr.eval(frame).str().value()).interactiveInput().execute(evalFrame); //TODO
   }
 
 }
