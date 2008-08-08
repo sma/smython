@@ -58,8 +58,6 @@ public class PyReader {
   private static void parse(File file) throws IOException {
     if (file.getName().equals("test_b1.py")) return; //complex
     if (file.getName().equals("test_cpickle.py")) return; //complex
-    if (file.getName().equals("test_extcall.py")) return; // unsplice
-    if (file.getName().equals("test_grammar.py")) return; // unsplice
     if (file.getName().equals("test_pickle.py")) return; // complex
 
     StringBuilder b = new StringBuilder(16384);
