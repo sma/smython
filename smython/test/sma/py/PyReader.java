@@ -56,10 +56,6 @@ public class PyReader {
   }
 
   private static void parse(File file) throws IOException {
-    if (file.getName().equals("test_b1.py")) return; //complex
-    if (file.getName().equals("test_cpickle.py")) return; //complex
-    if (file.getName().equals("test_pickle.py")) return; // complex
-
     StringBuilder b = new StringBuilder(16384);
     char[] buf = new char[4096];
     FileReader r = new FileReader(file);
