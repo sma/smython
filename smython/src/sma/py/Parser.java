@@ -972,7 +972,7 @@ public class Parser extends Scanner {
         continue;
       }
       if (match("(")) {
-        primary = new PyCall(primary, arglist());
+        primary = arglist(new PyCall(primary));
         expect(")");
         continue;
       }
@@ -1064,30 +1064,41 @@ public class Parser extends Scanner {
    * @return two expression list nodes for argument expression and keyword expressions;
    * the latter containing name literal nodes and general expression nodes
    */
-  PyExprList[] arglist() {
-    PyExprList args = new PyExprList();
-    PyExprList kwargs = new PyExprList(); 
+  PyCall arglist(PyCall call) {
     boolean seenkw = false;
     while (!is(")")) {
+      if (match("*")) {
+        call.setRestArgs(test());
+        if (!is(")")) {
+          expect(",");
+          expect("**");
+          call.setRestKwargs(test());
+        }
+        break;
+      }
+      if (match("**")) {
+        call.setRestKwargs(test());
+        break;
+      }
       PyExpr arg = test();
       if (match("=")) {
         if (!(arg instanceof PyIdentifier)) {
           throw notify("name before = in arglist expected");
         }
-        kwargs.add(new PyLiteral(((PyIdentifier) arg).getName()));
-        kwargs.add(test());
+        call.addKwarg(new PyLiteral(((PyIdentifier) arg).getName()));
+        call.addKwarg(test());
         seenkw = true;
       } else {
         if (seenkw) {
           throw notify("positional argument behind keyword argument");
         }
-        args.add(arg);
+        call.addArg(arg);
       }
       if (!is(")")) {
         expect(",");
       }
     }
-    return new PyExprList[] { args, kwargs };
+    return call;
   }
 
   /**
