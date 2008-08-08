@@ -21,7 +21,7 @@ public class PySuite extends PyStmt {
 
   @Override
   public String toString() {
-    return list(stmts, ";«»");
+    return list(stmts, ";");
   }
 
   @Override
