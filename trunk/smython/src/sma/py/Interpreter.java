@@ -9,18 +9,7 @@ import java.io.InputStreamReader;
 import java.io.Reader;
 import java.util.List;
 
-import sma.py.rt.Py;
-import sma.py.rt.PyBuiltinFunction;
-import sma.py.rt.PyClass;
-import sma.py.rt.PyDict;
-import sma.py.rt.PyFrame;
-import sma.py.rt.PyInstance;
-import sma.py.rt.PyInt;
-import sma.py.rt.PyList;
-import sma.py.rt.PyLong;
-import sma.py.rt.PyObject;
-import sma.py.rt.PyString;
-import sma.py.rt.PyTuple;
+import sma.py.rt.*;
 
 /**
  * Evaluates chunks of code in a global context, implementing a (subset of) a Python interpreter.
@@ -28,16 +17,17 @@ import sma.py.rt.PyTuple;
  * Contains a very experimental set of builtin functions!
  */
 public class Interpreter {
-  private final PyFrame frame = new PyFrame(null);
+  private final PyFrame frame = new PyFrame();
   
   public Interpreter() {
     init();
-    Builtins.register(frame);
+    Builtins.register(frame.getBuiltins());
   }
   
   protected void init() {
-    // register the None in the global environment (TODO it's the local one...)
-    frame.bind(PyObject.intern("None"), PyObject.None);
+    register("None", PyObject.None);
+    register("True", PyObject.make(1));
+    register("False", PyObject.make(0));
 
     // register a native function... doesn't look nice... 
     register("type", new PyBuiltinFunction() {
@@ -78,7 +68,7 @@ public class Interpreter {
           }
           return new PyTuple(objects);
         }
-        throw new Py.RaiseSignal(make("TypeError"), make("bad operand for tuple()"), null);
+        throw Py.typeError("bad operand for tuple()");
       }
     });
 
@@ -96,7 +86,7 @@ public class Interpreter {
   }
 
   public void register(String name, PyObject value) {
-    frame.bind(PyObject.intern(name), value);
+    frame.getBuiltins().setItem(PyObject.intern(name), value);
   }
 
   public void execute(Reader reader) throws IOException {

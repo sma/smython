@@ -13,7 +13,7 @@ public class Scanner {
       "def del elif else except exec finally for from global if import in is " +
       "lambda not or pass print raise return try while").split(" ");
 
-  public static final boolean VERSION_1_4 = true;
+  public static final boolean VERSION_1_4 = false;
   
   private final String source;
   private int index;

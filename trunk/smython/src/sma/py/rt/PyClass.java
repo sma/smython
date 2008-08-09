@@ -32,7 +32,7 @@ public class PyClass extends PyCallable {
       if (name == __DICT__) {
         return dict;
       }
-      throw attributeError(name);
+      throw Py.attributeError(name);
     }
     if (value instanceof PyFunction) {
       value = new PyMethod((PyFunction) value, null);

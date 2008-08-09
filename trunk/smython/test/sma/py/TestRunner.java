@@ -28,6 +28,7 @@ public class TestRunner {
 
     File tests = new File(TestRunner.class.getResource("tests").toURI());
     for (File f : tests.listFiles()) {
+      //if (!f.getName().equals("basic.py")) continue;
       createTests(suite, f);
     }
     return suite;
@@ -49,10 +50,12 @@ public class TestRunner {
           lines = "";
         } else if (line.startsWith(">>> ") || line.startsWith("... ")) {
           lines = lines + line.substring(4) + "\n";
-        } else if (line.trim().length() > 0) {
-          if (test == null) throw new IOException("missing ### header");
-          test.addAssert(lines, line.trim());
-          lines = "";
+        } else {
+          if (lines.length() > 0) {
+            if (test == null) throw new IOException("missing ### header");
+            test.addAssert(lines, line.trim());
+            lines = "";
+          }
         }
       }
       if (test != null) {

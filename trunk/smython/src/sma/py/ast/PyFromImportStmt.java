@@ -31,7 +31,7 @@ public class PyFromImportStmt extends PyStmt {
       module.setAttr(PyObject.intern("__name__"), module);
       module.setAttr(PyObject.intern("maxint"), PyObject.make(2147483647));
       for (PyString name : names) {
-        frame.bind(name, module.getAttr(name));
+        frame.setLocal(name, module.getAttr(name));
       }
     }
   }

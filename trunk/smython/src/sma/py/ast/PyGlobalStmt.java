@@ -26,8 +26,6 @@ public class PyGlobalStmt extends PyStmt {
 
   @Override
   public void execute(PyFrame frame) {
-    // TODO Auto-generated method stub
-    throw new UnsupportedOperationException();
   }
 
 }

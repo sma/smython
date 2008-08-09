@@ -6,6 +6,8 @@ package sma.py;
 import java.math.BigInteger;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Set;
+import java.util.HashSet;
 
 import sma.py.ast.*;
 import sma.py.rt.PyObject;
@@ -16,6 +18,8 @@ import sma.py.rt.PyTuple;
  * Takes a source and returns an abstract syntax tree.
  */
 public class Parser extends Scanner {
+  private Set<PyString> globals = new HashSet<PyString>();
+
   /**
    * Constructs a new parser for the given source string.
    * 
@@ -75,6 +79,7 @@ public class Parser extends Scanner {
     PyParamList parameters = parameters();
     expect(")");
     expect(":");
+    globals.clear();
     return new PyDefStmt(name, parameters, suite());
   }
 
@@ -594,6 +599,7 @@ public class Parser extends Scanner {
     while (match(",")) {
       names.add(name("name expected"));
     }
+    globals.addAll(names);
     return new PyGlobalStmt(names);
   }
 
@@ -990,7 +996,11 @@ public class Parser extends Scanner {
    */
   PyExpr atom() {
     if (is("NAME")) {
-      return new PyIdentifier(PyObject.intern((String) advance()));
+      PyString name = PyObject.intern((String) advance());
+      if (globals.contains(name)) {
+        return new PyGlobalIdentifier(name);
+      }
+      return new PyIdentifier(name);
     }
     if (is("NUMBER")) {
       Object value = advance();

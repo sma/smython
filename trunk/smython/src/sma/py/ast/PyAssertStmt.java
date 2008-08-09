@@ -27,11 +27,7 @@ public class PyAssertStmt extends PyStmt {
   @Override
   public void execute(PyFrame frame) {
     if (!test.eval(frame).truth()) {
-      //TODO shouldn't raise an ad-hoc string, also think about traceback
-      if (message != null) {
-        throw new Py.RaiseSignal(PyObject.make("AssertError"), message.eval(frame).str(), null);
-      }
-      throw new Py.RaiseSignal(PyObject.make("AssertError"), null, null);
+      throw Py.raise(PyObject.intern("AssertError"), message != null ? message.eval(frame) : PyObject.None);
     }
   }
 }

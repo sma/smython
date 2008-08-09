@@ -33,6 +33,7 @@ public class PyLambda extends PyExpr {
     suite.add(new PyReturnStmt(list));
 
     return new PyUserFunction(
+      frame.getGlobals(),
       PyObject.intern("<lambda>"), //TODO intern this only once
       parameters.nargs,
       parameters.names,

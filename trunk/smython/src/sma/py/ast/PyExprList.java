@@ -6,10 +6,7 @@ package sma.py.ast;
 import java.util.ArrayList;
 import java.util.List;
 
-import sma.py.rt.PyDict;
-import sma.py.rt.PyFrame;
-import sma.py.rt.PyObject;
-import sma.py.rt.PyTuple;
+import sma.py.rt.*;
 
 /**
  * Represents a list of {@code PyExpr} nodes. An expression list knows whether it is an assignment
@@ -110,10 +107,10 @@ public class PyExprList extends PyNode {
       PyTuple tuple = (PyTuple) value;
       int size = tuple.size();
       if (expressions.size() < size) {
-        throw new RuntimeException("too many values to unpack");
+        throw Py.valueError("too many values to unpack");
       }
       if (expressions.size() > size) {
-        throw new RuntimeException("not enough values to unpack");
+        throw Py.valueError("not enough values to unpack");
       }
       for (int i = 0; i < size; i++) {
         expressions.get(i).assign(frame, tuple.get(i));

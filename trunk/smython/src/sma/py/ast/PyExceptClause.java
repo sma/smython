@@ -5,6 +5,7 @@ package sma.py.ast;
 
 import sma.py.rt.PyFrame;
 import sma.py.rt.PyObject;
+import sma.py.rt.Py;
 
 /**
  * Represents a <code>except</code> as part of a <code>try</code> statement.
@@ -26,14 +27,14 @@ public class PyExceptClause {
     return " except " + (exception != null ? exception + (target != null ? ", " + target : "") : "") + ": " + exceptClause;
   }
 
-  public boolean execute(PyFrame frame, Object exception) {
+  public boolean execute(PyFrame frame, Py.RaiseSignal raise) {
     if (this.exception != null) {
       PyObject ex = this.exception.eval(frame);
-      if (ex != exception) {
+      if (ex.compareTo(raise.getException()) != 0) {
         return false;
       }
       if (target != null) {
-        target.assign(frame, ex);
+        target.assign(frame, raise.getInstance());
       }
     }
     exceptClause.execute(frame);

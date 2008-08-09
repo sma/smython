@@ -285,17 +285,6 @@ public abstract class PyObject implements Comparable<PyObject> {
   }
 
   // --------------------------------------------------------------------------------------------------------
-  // exceptions
-
-  protected static RuntimeException attributeError(PyString name) {
-    return new RuntimeException("AttributeError: '" + name + "' not found");
-  }
-
-  protected static RuntimeException typeError(String message) {
-    return new RuntimeException("TypeError: " + message);
-  }
-
-  // --------------------------------------------------------------------------------------------------------
   // Java support
 
   public boolean truth() {

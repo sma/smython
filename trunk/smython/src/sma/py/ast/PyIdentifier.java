@@ -28,7 +28,7 @@ public class PyIdentifier extends PyExpr {
 
   @Override
   public PyObject eval(PyFrame frame) {
-    return frame.lookup(name);
+    return frame.getLocal(name);
   }
 
   @Override
@@ -38,12 +38,12 @@ public class PyIdentifier extends PyExpr {
 
   @Override
   public void assign(PyFrame frame, PyObject value) {
-    frame.bind(name, value);
+    frame.setLocal(name, value);
   }
 
   @Override
   public void del(PyFrame frame) {
-    frame.unbind(name);
+    frame.delLocal(name);
   }
 
 }

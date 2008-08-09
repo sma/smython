@@ -5,6 +5,8 @@ package sma.py;
 
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
+import java.lang.annotation.Retention;
+import java.lang.annotation.RetentionPolicy;
 
 import sma.py.rt.PyBuiltinFunction;
 import sma.py.rt.PyDict;
@@ -18,17 +20,17 @@ import sma.py.rt.PyTuple;
 
 public class Builtins {
   
-  public static void register(PyFrame frame) {
+  public static void register(PyDict dict) {
     for (Method m : Builtins.class.getMethods()) {
       Builtin b = m.getAnnotation(Builtin.class);
       if (b != null) {
-        register(frame, m, b.value());
+        dict.setItem(PyObject.intern(b.value()), makeFunction(m));
       }
     }
   }
   
-  private static void register(PyFrame frame, final Method method, String parameters) {
-    frame.bind(PyObject.make(method.getName()), new PyBuiltinFunction() {
+  private static PyBuiltinFunction makeFunction(final Method method) {
+    return new PyBuiltinFunction() {
       @Override
       public PyObject apply(PyFrame frame, PyTuple positionalArguments, PyDict keywordArguments) {
         return invoke(positionalArguments.get(0));
@@ -48,28 +50,20 @@ public class Builtins {
           throw new Error(e);
         }
       }
-    });
+    };
   }
 
-  @Builtin("x")
+  @Builtin("abs")
   public static PyObject abs(PyObject obj) {
     return obj.abs();
   }
-  
-  private static final PyString __ABS__ = PyObject.intern("__abs__");
-  
-  public static PyObject abs(PyInt obj) {
-    return obj.abs();
-  }
-  
-  public static PyObject abs(PyLong obj) {
-    return obj.abs();
-  }
-  
-  public static PyObject abs(PyInstance obj) {
-    return obj.getAttr(__ABS__).call(obj);
+
+  @Builtin("chr")
+  public static PyObject chr(PyInt val) {
+    return PyObject.make(String.valueOf((char) val.value()));
   }
 
+  @Retention(RetentionPolicy.RUNTIME)
   public @interface Builtin {
     String value();
   }

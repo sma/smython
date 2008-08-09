@@ -3,10 +3,7 @@
  */
 package sma.py.ast;
 
-import sma.py.rt.PyClass;
-import sma.py.rt.PyFrame;
-import sma.py.rt.PyString;
-import sma.py.rt.PyTuple;
+import sma.py.rt.*;
 
 /**
  * Represents a <code>class</code> definition statement, see §7.6.
@@ -30,9 +27,10 @@ public class PyClassStmt extends PyStmt {
   @Override
   public void execute(PyFrame frame) {
     PyTuple classes = bases != null ? bases.evalAsTuple(frame) : new PyTuple(); //TODO there should be one empty tuple
-    PyFrame classframe = new PyFrame(frame);
+    PyDict locals = new PyDict();
+    PyFrame classframe = new PyFrame(frame, locals, frame.getGlobals(), frame.getBuiltins());
     suite.execute(classframe);
-    frame.bind(name, new PyClass(name, classes, classframe.locals()));
+    frame.setLocal(name, new PyClass(name, classes, locals));
   }
 
 }
