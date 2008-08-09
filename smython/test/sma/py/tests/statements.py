@@ -387,9 +387,16 @@
 >>> b
 1
 
-### exec statement in own context
+### exec statement with new global context
 >>> a=1
 >>> g={'a': 2}
 >>> exec 'b=a' in g
 >>> a, g['b']
 (1, 2)
+
+### exec statement with new global and local context
+>>> a=1
+>>> g={}; l={}
+>>> exec 'a=1; global b; b=2' in g, l
+>>> g['b'], l['a']
+(2, 1)

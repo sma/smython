@@ -36,8 +36,8 @@
 
 4. Execution model
 
-* no exec, execfile(), eval() or input()
-* no builtin namespace, no support for globals
+* no execfile(), eval() or input()
+* no builtins module
 * no __builtin__ namespace
 * no __main__ namespace
 * exceptions can be raised and caught but exception hierarchy is non-existant
@@ -48,7 +48,7 @@
 * no private name mangling
 * extended slicing not implemented (I didn't understand what to do)
 * assigning to tuple parameter in functions doesn't work
-* never checked whether % is correctly implemented
+* never checked whether % is correctly implemented for negative numbers
 * no divmod() builtin function
 * negative shift counts do not raise exception (extension)
 * < or > for objects of different type compare hash values! (simulating pointer comparison)
@@ -60,10 +60,9 @@
 * assignment only works with tuples as defined by Python 1.4, relaxed rules not supported
 * del: not tested
 * print: str() implementation is incomplete
+* print: multiple values are printed as tuple; no space insertion
 * raise: two or three argument variant do not work
 * import: not supported
-* global: ignored, doesn't work with the current way the parser constructs the AST
-* exec: not supported
 * no * and ** expansion in calls (new in 1.6)
 
 7. Compound statements
