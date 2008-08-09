@@ -53,13 +53,6 @@ public class Scanner {
     return t;
   }
 
-  // TODO this method is only used by the unit tests
-  public String getToken() {
-    String tt = tokenType;
-    advance();
-    return tt;
-  }
-
   protected RuntimeException notify(String message) {
     return new RuntimeException(message + " in line " + line() + " of " + source);
   }
@@ -571,6 +564,7 @@ public class Scanner {
     back();
     token = b.toString();
     for (String keyword : KEYWORDS) {
+      if (keyword.equals("assert")) continue; // for Python 1.4, assert is no keyword
       if (keyword.equals(token)) {
         token = keyword;
         return keyword;
