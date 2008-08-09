@@ -48,11 +48,13 @@ public class PyCall extends PyExpr {
   @Override
   public PyObject eval(PyFrame frame) {
     if (restArgs != null || restKwargs != null) {
+      //TODO support rest parameters
       throw new UnsupportedOperationException();
     }
 
     PyObject callable = primary.eval(frame);
-    
+
+    //TODO this is kind-of inefficient
     PyTuple positionalArguments = args.evalAsTuple(frame);
     PyDict keywordArguments = kwargs.evalAsDictionary(frame);
     return callable.apply(frame, positionalArguments, keywordArguments);

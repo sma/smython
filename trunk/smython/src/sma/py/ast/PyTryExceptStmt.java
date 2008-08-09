@@ -41,6 +41,7 @@ public class PyTryExceptStmt extends PyStmt {
     if (elseClause != null) {
       elseClause.execute(frame);
     }
+    //TODO need to rethrow exception
   }
 
 }

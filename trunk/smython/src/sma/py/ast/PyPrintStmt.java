@@ -22,6 +22,7 @@ public class PyPrintStmt extends PyStmt {
 
   @Override
   public void execute(PyFrame frame) {
+    //TODO automatically emit spaces if not at the begin of line
     System.out.print(expressions.eval(frame));
     if (!expressions.isTuple()) {
       System.out.println();

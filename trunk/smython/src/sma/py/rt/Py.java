@@ -6,8 +6,8 @@ package sma.py.rt;
 public class Py {
   /**
    * Abstract base class for signals. Because we do not need Java to fill in the 
-   * stack trace, we overwrite this method. This greately improve the performnce
-   * of raised exceptions.
+   * stack trace, we overwrite the {@code fillInStackTrace()} method. This greately
+   * improves the performance of raised exceptions.
    */
   public abstract static class Signal extends RuntimeException {
     @Override

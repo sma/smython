@@ -29,7 +29,7 @@ public class PyClassStmt extends PyStmt {
 
   @Override
   public void execute(PyFrame frame) {
-    PyTuple classes = bases != null ? bases.evalAsTuple(frame) : new PyTuple();
+    PyTuple classes = bases != null ? bases.evalAsTuple(frame) : new PyTuple(); //TODO there should be one empty tuple
     PyFrame classframe = new PyFrame(frame);
     suite.execute(classframe);
     frame.bind(name, new PyClass(name, classes, classframe.locals()));

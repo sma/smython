@@ -9,11 +9,14 @@ import sma.py.ast.PyNode;
 
 public class ParserTest extends TestCase {
 
+  // 7.6 class definitions
   public void testClassDef() {
     assertNotNull(parseClassDef("class C: pass"));
     assertNotNull(parseClassDef("class C:\n pass"));
     assertNotNull(parseClassDef("class C(Object):\n pass"));
+    assertNotNull(parseClassDef("class C(Object,):\n pass"));
     assertNotNull(parseClassDef("class C(Object,Mixin):pass;pass"));
+    assertNotNull(parseClassDef("class C(Object,Mixin,):pass;pass"));
   }
 
   private PyNode parseClassDef(String source) {
@@ -26,11 +29,14 @@ public class ParserTest extends TestCase {
     return n;
   }
 
+  // 7.5 function definitions
   public void testFuncDef() {
     assertNotNull(parseFuncDef("def f():pass"));
     assertNotNull(parseFuncDef("def f():\n pass"));
     assertNotNull(parseFuncDef("def f(a):pass"));
+    assertNotNull(parseFuncDef("def f(a, ):pass"));
     assertNotNull(parseFuncDef("def f(a, b):pass"));
+    assertNotNull(parseFuncDef("def f(a, b, ):pass"));
     assertNotNull(parseFuncDef("def f(a, b=0):pass"));
     assertNotNull(parseFuncDef("def f(a = 0, b = 0):pass"));
     assertNotNull(parseFuncDef("def f(*rest):pass"));
@@ -60,6 +66,7 @@ public class ParserTest extends TestCase {
   public void testLambDef() {
     assertNotNull(parseLambDef("lambda:42"));
     assertNotNull(parseLambDef("lambda a:42"));
+    assertNotNull(parseLambDef("lambda a,:42"));
     assertNotNull(parseLambDef("lambda a, b:42"));
     assertNotNull(parseLambDef("lambda a, b=0:42"));
     assertNotNull(parseLambDef("lambda a = 0, b = 0:42"));
@@ -69,6 +76,7 @@ public class ParserTest extends TestCase {
     assertNotNull(parseLambDef("lambda a, b, *rest, **kwargs:42"));
     assertNotNull(parseLambDef("lambda a, b = 0, *rest, **kwargs:42"));
     assertNotNull(parseLambDef("lambda a = 0, b = 0, *rest, **kwargs:42"));
+    assertNotNull(parseLambDef("lambda (a,(b)):42"));
   }
 
   private PyNode parseLambDef(String source) {
@@ -87,7 +95,7 @@ public class ParserTest extends TestCase {
   // Compound statements (7)
   // -----------------------
 
-
+  // 7.1 the if statement
   public void testIfStmt() {
     assertNotNull(parseStmt("if 1:pass"));
     assertNotNull(parseStmt("if 1:\n pass"));
@@ -97,6 +105,7 @@ public class ParserTest extends TestCase {
     assertNotNull(parseStmt("if 1:\n pass\nelif 2:\n pass\nelif 3:\n pass\nelse:pass"));
   }
 
+  // 7.2 the while statement
   public void testWhileStmt() {
     assertNotNull(parseStmt("while 1:pass"));
     assertNotNull(parseStmt("while 1:\n pass"));
@@ -104,6 +113,7 @@ public class ParserTest extends TestCase {
     assertNotNull(parseStmt("while 1:\n pass\nelse:\n pass"));
   }
 
+  // 7.3 the for statement
   public void testForStmt() {
     assertNotNull(parseStmt("for t in list: pass"));
     assertNotNull(parseStmt("for t1, t2 in list: pass"));
@@ -111,6 +121,7 @@ public class ParserTest extends TestCase {
     assertNotNull(parseStmt("for t1, t2 in list1, list2: pass\nelse: pass"));
   }
 
+  // 7.4 the try-except statement
   public void testTryExceptStmt() {
     assertNotNull(parseStmt("try: pass\nexcept: pass"));
     assertNotNull(parseStmt("try: pass\nexcept 0: pass"));
@@ -119,8 +130,10 @@ public class ParserTest extends TestCase {
     assertNotNull(parseStmt("try:\n pass\nexcept 0, t:\n pass\nexcept 1, t:\n pass\nelse:\n pass"));
   }
 
+  // 7.4 the try-finally statement
   public void testTryFinallyStmt() {
     assertNotNull(parseStmt("try: pass\nfinally: pass"));
+    assertNotNull(parseStmt("try:\n pass\nfinally:\n pass\n pass"));
   }
 
   public void testClassDefAndFuncDefStmt() {
@@ -198,7 +211,10 @@ public class ParserTest extends TestCase {
   public void testImportStmt() {
     assertNotNull(parseStmt("import X"));
     assertNotNull(parseStmt("import X, Y, Z"));
-    // and the from-import statement
+  }
+
+  // 6.10 The from-import statement
+  public void testFromImportStmt() {
     assertNotNull(parseStmt("from M import X"));
     assertNotNull(parseStmt("from M import X, Y, Z"));
     assertNotNull(parseStmt("from M import *"));
@@ -217,8 +233,9 @@ public class ParserTest extends TestCase {
     assertNotNull(parseStmt("exec 'foo' in globals"));
     assertNotNull(parseStmt("exec 'foo' in {}, {}"));
   }
-
+  
   public void testAssertStmt() {
+    if (Parser.VERSION_1_4) return;
     assertNotNull(parseStmt("assert 3+4"));
     assertNotNull(parseStmt("assert 3+4, 'should be 7'"));
   }
@@ -226,6 +243,7 @@ public class ParserTest extends TestCase {
   // 6.1 Expression statements
   public void testExprStmt() {
     assertNotNull(parseStmt("name"));
+    assertNotNull(parseStmt("name,"));
     assertNotNull(parseStmt("'docstring'"));
     assertNotNull(parseStmt("call(), a[0], b.c"));
   }
@@ -267,8 +285,8 @@ public class ParserTest extends TestCase {
     assertNotNull(parseStmt("[a.x, b[0], c[...]] = x"));
     assertNotNull(parseStmt("[(a)] = x"));
     assertNotNull(parseStmt("[[a]] = x"));
-    //TODO assertNotNull(parseStmt("a = b = 0"));
-    //TODO assertNotNull(parseStmt("a, b = [c] = d = 'a', 'b'"));
+    assertNotNull(parseStmt("a = b = 0"));
+    assertNotNull(parseStmt("a, b = [c] = d = 'a', 'b'"));
   }
 
   private PyNode parseStmt(String source) {
@@ -284,7 +302,9 @@ public class ParserTest extends TestCase {
   // ---------------
 
   // Atoms (5.2)
+  // -----------
 
+  // 5.2.1 Identifiers (Names)
   public void testIdentifiers() {
     assertNotNull(parseExpr("name"));
     assertNotNull(parseExpr("_Name"));
@@ -292,13 +312,18 @@ public class ParserTest extends TestCase {
     assertNotNull(parseExpr("foo_bar_1"));
   }
 
+  // 5.2.2 Literals
   public void testLiterals() {
     assertNotNull(parseExpr("314159265"));
+    assertNotNull(parseExpr("314159265L"));
+    assertNotNull(parseExpr("1e-6"));
+    assertNotNull(parseExpr("1j"));
     assertNotNull(parseExpr("'str'"));
     assertNotNull(parseExpr("\"str\""));
     assertNotNull(parseExpr("\"str1\" \"str2\""));
   }
 
+  // 5.2.3  Parenthesized forms
   public void testParenthesizedForm() {
     assertNotNull(parseExpr("()"));
     assertNotNull(parseExpr("(a)"));
@@ -307,6 +332,7 @@ public class ParserTest extends TestCase {
     assertNotNull(parseExpr("(a, \n b,\n)"));
   }
 
+  // 5.2.4 List displays
   public void testListDisplay() {
     assertNotNull(parseExpr("[]"));
     assertNotNull(parseExpr("[a]"));
@@ -315,6 +341,7 @@ public class ParserTest extends TestCase {
     assertNotNull(parseExpr("[a, \n b,\n]"));
   }
 
+  // 5.2.5 Dictionary displays
   public void testDoctionaryDisplay() {
     assertNotNull(parseExpr("{}"));
     assertNotNull(parseExpr("{a:b}"));
@@ -323,6 +350,7 @@ public class ParserTest extends TestCase {
     assertNotNull(parseExpr("{a:b, \n c:d,\n}"));
   }
 
+  // 5.2.6 String conversions
   public void testStringConversion() {
     assertNotNull(parseExpr("`1`"));
     //assertNotNull(parseExpr("`1,`"));
@@ -331,13 +359,16 @@ public class ParserTest extends TestCase {
   }
 
   // Primaries (5.3)
+  // ---------------
 
+  // 5.3.1 Attribute references
   public void testAttributeReference() {
     assertNotNull(parseExpr("self.a"));
     assertNotNull(parseExpr("self.a.b"));
     assertNotNull(parseExpr("(a,b).len"));
   }
 
+  // 5.3.2 Subscriptions
   public void testSubscriptions() {
     assertNotNull(parseExpr("foo[1]"));
     assertNotNull(parseExpr("foo[1, ]"));
@@ -345,6 +376,7 @@ public class ParserTest extends TestCase {
     assertNotNull(parseExpr("foo[1, 2, ]"));
   }
 
+  // 5.3.3 Slicings
   public void testSlicings() {
     assertNotNull(parseExpr("bar[:]"));
     assertNotNull(parseExpr("bar[lower:]"));
@@ -355,6 +387,7 @@ public class ParserTest extends TestCase {
     assertNotNull(parseExpr("bar[1, :, ..., ]"));
   }
 
+  // 5.3.4 Calls
   public void testCalls() {
     assertNotNull(parseExpr("f()"));
     assertNotNull(parseExpr("f(0)"));
@@ -365,14 +398,12 @@ public class ParserTest extends TestCase {
   }
 
   // Power operation (5.4)
-
   public void testPowerOperator() {
     assertNotNull(parseExpr("2 ** 8"));
     assertNotNull(parseExpr("2 ** 8 ** 2"));
   }
 
   // Unary arithmetic operations (5.5)
-
   public void testUnaryArithmeticOperations() {
     assertNotNull(parseExpr("+1"));
     assertNotNull(parseExpr("++1"));
@@ -385,19 +416,20 @@ public class ParserTest extends TestCase {
   }
 
   // Binary arithmetic operations (5.6)
-
   public void testBinaryArithmeticOperations() {
     assertNotNull(parseExpr("1"));
     assertNotNull(parseExpr("1 + 2"));
     assertNotNull(parseExpr("1 + 2 - 3"));
+    assertNotNull(parseExpr("1 - 2 + 3"));
 
     assertNotNull(parseExpr("2 * 3"));
+    assertNotNull(parseExpr("4 / 2"));
     assertNotNull(parseExpr("2 * 3 / 4"));
+    assertNotNull(parseExpr("2 / 3 * 4"));
     assertNotNull(parseExpr("2 * 3 / 4 % 5"));
   }
 
   // Shifting operations (5.7)
-
   public void testShiftingOperations() {
     assertNotNull(parseExpr("1 << 2"));
     assertNotNull(parseExpr("1 << 2 << 3"));
@@ -406,7 +438,6 @@ public class ParserTest extends TestCase {
   }
 
   // Binary bitwise operations (5.8)
-
   public void testBitOperations() {
     assertNotNull(parseExpr("3 & 4"));
     assertNotNull(parseExpr("3 ^ 4"));
@@ -424,7 +455,6 @@ public class ParserTest extends TestCase {
   }
 
   // Comparisons (5.9)
-
   public void testComparisons() {
     assertNotNull(parseTest("1 < 2"));
     assertNotNull(parseTest("1 > 2"));
@@ -443,10 +473,10 @@ public class ParserTest extends TestCase {
   }
 
   // Boolean operations (5.10)
-
   public void testBooleanOperations() {
     assertNotNull(parseTest("True and False"));
     assertNotNull(parseTest("True and False or True"));
+    assertNotNull(parseTest("True or False and True"));
     assertNotNull(parseTest("not True and not False"));
     assertNotNull(parseTest("lambda: True"));
 
@@ -465,7 +495,6 @@ public class ParserTest extends TestCase {
   }
 
   // Expression lists (5.11)
-
   public void testExpressionLists() {
     assertEquals(1, parseTestlist("3+4").size());
     assertEquals(1, parseTestlist("3+4, ").size());
@@ -504,10 +533,5 @@ public class ParserTest extends TestCase {
     assertNotNull(parseStmt("foo(a, b=0, **kwargs)"));
     assertNotNull(parseStmt("foo(*args, **kwargs)"));
     assertNotNull(parseStmt("foo(a, b=0, *args, **kwargs)"));
-  }
-
-  // I do not support multiple assignments
-  public void testMultipleAssignment() {
-    assertNotNull(parseStmt("a = b = 'c'"));
   }
 }
