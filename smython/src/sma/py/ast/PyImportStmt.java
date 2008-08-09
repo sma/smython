@@ -29,7 +29,7 @@ public class PyImportStmt extends PyStmt {
         PyModule module = new PyModule(new PyDict());
         module.setAttr(PyObject.intern("__name__"), name);
         module.setAttr(PyObject.intern("maxint"), PyObject.make(2147483647));
-        frame.bind(name, module);
+        frame.setLocal(name, module);
       }
     }
   }

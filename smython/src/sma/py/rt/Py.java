@@ -4,6 +4,30 @@
 package sma.py.rt;
 
 public class Py {
+  public static RaiseSignal nameError(PyString name) {
+    return raise(PyObject.intern("NameError"), name);
+  }
+
+  public static RaiseSignal attributeError(PyString name) {
+    return raise(PyObject.intern("AttributeError"), name);
+  }
+
+  public static RaiseSignal typeError(String message) {
+    return raise(PyObject.intern("TypeError"), PyObject.make(message));
+  }
+
+  public static RaiseSignal valueError(String message) {
+    return raise(PyObject.intern("ValueError"), PyObject.make(message));
+  }
+
+  public static RaiseSignal keyError(PyObject key) {
+    return raise(PyObject.intern("KeyError"), key);
+  }
+
+  public static RaiseSignal raise(PyObject exception, PyObject message) {
+    return new RaiseSignal(exception, message, PyObject.None);
+  }
+
   /**
    * Abstract base class for signals. Because we do not need Java to fill in the 
    * stack trace, we overwrite the {@code fillInStackTrace()} method. This greately
@@ -40,6 +64,11 @@ public class Py {
 
     public PyObject getTraceback() {
       return traceback;
+    }
+
+    @Override
+    public String toString() {
+      return exception.str().value() + (instance == PyObject.None ? "": ": " + instance.str().value());
     }
   }
 

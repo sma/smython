@@ -28,18 +28,18 @@ public class PyExecStmt extends PyStmt {
 
   @Override
   public void execute(PyFrame frame) {
-    PyFrame evalFrame = frame;
+    PyDict newLocals = frame.getLocals();
+    PyDict newGlobals = frame.getGlobals();
     if (globals != null) {
-      //TODO constructing the frame is wrong
-      PyDict gdict = (PyDict) globals.eval(frame);
-      PyDict ldict = gdict;
+      newGlobals = (PyDict) globals.eval(frame);
       if (locals != null) {
-        ldict = (PyDict) locals.eval(frame);
+        newLocals = (PyDict) locals.eval(frame);
+      } else {
+        newLocals = newGlobals;
       }
-      evalFrame = new PyFrame(gdict, ldict);
     }
     //TODO exec also support code objects
-    new Parser(expr.eval(frame).str().value()).interactiveInput().execute(evalFrame);
+    new Parser(expr.eval(frame).str().value()).interactiveInput().execute(new PyFrame(frame, newLocals, newGlobals, frame.getBuiltins()));
   }
 
 }

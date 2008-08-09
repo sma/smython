@@ -5,6 +5,7 @@ package sma.py.ast;
 
 import sma.py.rt.Py;
 import sma.py.rt.PyFrame;
+import sma.py.rt.PyObject;
 
 /**
  * Represents the <code>raise</code> statement, see §6.8.
@@ -29,8 +30,8 @@ public class PyRaiseStmt extends PyStmt {
   public void execute(PyFrame frame) {
     throw new Py.RaiseSignal(
       exception.eval(frame),
-      instance != null ? instance.eval(frame) : null,
-      traceback != null ? traceback.eval(frame) : null);
+      instance != null ? instance.eval(frame) : PyObject.None,
+      traceback != null ? traceback.eval(frame) : PyObject.None);
   }
 
 }

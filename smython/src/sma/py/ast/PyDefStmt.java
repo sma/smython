@@ -29,7 +29,8 @@ public class PyDefStmt extends PyStmt {
 
   @Override
   public void execute(PyFrame frame) {
-    frame.bind(name, new PyUserFunction(
+    frame.setLocal(name, new PyUserFunction(
+      frame.getGlobals(),
       name,
       parameters.nargs,
       parameters.names,

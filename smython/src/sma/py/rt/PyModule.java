@@ -33,7 +33,7 @@ public class PyModule extends PyObject {
     if (value != null) {
       return value;
     }
-    throw attributeError(name);
+    throw Py.attributeError(name);
   }
 
   @Override
@@ -48,7 +48,7 @@ public class PyModule extends PyObject {
   @Override
   public void delAttr(PyString name) {
     if (name == __DICT__) {
-      throw typeError("readonly attribute");
+      throw Py.typeError("readonly attribute");
     }
     dict.delItem(name);
   }

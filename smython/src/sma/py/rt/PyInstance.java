@@ -22,7 +22,7 @@ public class PyInstance extends PyCallable {
     if (f != null) {
       f.apply(frame, positionalArguments.prepend(this), keywordArguments);
     } else if (positionalArguments.size() > 0 || keywordArguments.size() > 0) {
-      throw typeError("constructor takes no arguments"); //TODO
+      throw Py.typeError("constructor takes no arguments"); //TODO
     }
   }
 
@@ -59,7 +59,7 @@ public class PyInstance extends PyCallable {
       if (f != null) {
         return f.call(this, name);
       }
-      throw attributeError(name);
+      throw Py.attributeError(name);
     }
     if (o instanceof PyFunction) {
       o = new PyMethod((PyFunction) o, this);

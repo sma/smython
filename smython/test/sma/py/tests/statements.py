@@ -316,5 +316,80 @@
 >>> a
 1
 
-### TODO try/except with raise
+### try/except
+>>> a=0
+>>> try: assert 1
+... except: a=0
+>>> a
+0
+>>> try: assert 0
+... except: a=1
+>>> a
+1
 
+### try/except/else
+>>> a=0
+>>> try: assert 1
+... except: a=1
+... else: a=2
+>>> a
+2
+>>> try: assert 0
+... except: a=1
+... else: a=2
+>>> a
+1
+
+### raise stops execution
+>>> a=0
+>>> try:
+...   raise "foo"; a=1
+... except:
+...   a=2
+>>> a
+2
+
+### except with exception type
+>>> a=0
+>>> try:
+...   raise "foo"; a=1
+... except "foo":
+...   a=2
+>>> a
+2
+>>> try:
+...   raise "foo", 3
+... except "foo", e:
+...   a=e
+>>> a
+3
+
+### except with wrong exception type
+>>> a=0
+>>> try:
+...   try: raise "foo"
+...   except "bar": a=1
+... except: a=2
+>>> a
+2
+>>> a=0; b=0
+>>> try:
+...   try: raise "foo"
+...   except "bar": a=1
+...   else: b=1
+... except: a=2
+>>> a, b
+(2, 0)
+
+### exec statement in current context
+>>> a=1
+>>> exec 'b=a'
+>>> b
+1
+
+### exec statement in own context
+>>> a=1
+>>> g={'a': 2}
+>>> exec 'b=a' in g
+>>> a, g['b']
+(1, 2)

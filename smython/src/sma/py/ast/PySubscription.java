@@ -5,6 +5,7 @@ package sma.py.ast;
 
 import sma.py.rt.PyFrame;
 import sma.py.rt.PyObject;
+import sma.py.rt.Py;
 
 /**
  * Represents a subscription, see §5.3.2.
@@ -25,9 +26,10 @@ public class PySubscription extends PyExpr {
 
   @Override
   public PyObject eval(PyFrame frame) {
-    PyObject value = primary.eval(frame).getItem(expressions.eval(frame));
+    PyObject key = expressions.eval(frame);
+    PyObject value = primary.eval(frame).getItem(key);
     if (value == null) {
-      throw new RuntimeException("KeyError");//TODO needs to be Python exception
+      throw Py.keyError(key);
     }
     return value;
   }

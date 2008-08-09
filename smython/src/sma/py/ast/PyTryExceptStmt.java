@@ -33,15 +33,15 @@ public class PyTryExceptStmt extends PyStmt {
       tryClause.execute(frame);
     } catch (Py.RaiseSignal s) {
       for (PyExceptClause except : exceptClauses) {
-        if (except.execute(frame, s.getException())) {
+        if (except.execute(frame, s)) {
           return;
         }
       }
+      throw s;
     }
     if (elseClause != null) {
       elseClause.execute(frame);
     }
-    //TODO need to rethrow exception
   }
 
 }

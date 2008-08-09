@@ -8,7 +8,7 @@ package sma.py.rt;
  */
 public class PyFrame extends PyObject {
   private final PyFrame back;
-  //private final PyDict locals;
+  private final PyDict locals;
   private final PyDict globals;
   private final PyDict builtins;
 
@@ -17,58 +17,45 @@ public class PyFrame extends PyObject {
   private static final PyString F_GLOBALS = intern("f_globals");
   private static final PyString F_BUILTINS = intern("f_builtins");
 
-  static class Link {
-    final Link next;
-    final PyString name;
-    PyObject value;
-    Link(Link next, PyString name, PyObject value) {
-      this.next = next;
-      this.name = name;
-      this.value = value;
-    }
+  public PyFrame() {
+    this(null, null, null, new PyDict());
   }
-  private Link _locals;
-  
+
   /**
    * Constructs a new execution context. If "back" is {@code null}, a global context is created.
-   * Otherwise a nested context is created which inherits the global and builtin definitions from
-   * the specified "back" frame.
+   * Otherwise a nested context is created which normally shares the dictionaries for global and
+   * built-in variables with its ancestor. 
    */
-  public PyFrame(PyFrame back) {
+  public PyFrame(PyFrame back, PyDict locals, PyDict globals, PyDict builtins) {
     this.back = back;
-    //this.locals = new PyDict();
-    if (back != null) {
-      this.globals = back.globals;
-      this.builtins = back.builtins;
+    if (back == null) {
+      this.locals = this.globals = new PyDict();
     } else {
-      this.globals = new PyDict(); //locals;
-      this.builtins = null; //locals;
+      this.locals = locals;
+      this.globals = globals;
     }
+    this.builtins = builtins;
   }
 
-  public PyFrame(PyDict gdict, PyDict ldict) { //TODO for exec
-    this.back = null;
-    //this.locals = ldict;
-    this.globals = gdict;
-    this.builtins = gdict;
+  public PyDict getLocals() {
+    return locals;
   }
 
-  public PyDict locals() {
-    //return locals;
-    PyDict dict = new PyDict();
-    for (Link l = _locals; l != null; l = l.next) {
-      dict.setItem(l.name, l.value);
-    }
-    return dict;
+  public PyDict getGlobals() {
+    return globals;
+  }
+
+  public PyDict getBuiltins() {
+    return builtins;
   }
 
   @Override
   public PyObject getAttr(PyString name) {
     if (name == F_BACK) {
-      return back;
+      return back != null ? back : None;
     }
     if (name == F_LOCALS) {
-      return null; //locals;
+      return locals;
     }
     if (name == F_GLOBALS) {
       return globals;
@@ -76,40 +63,70 @@ public class PyFrame extends PyObject {
     if (name == F_BUILTINS) {
       return builtins;
     }
-    throw attributeError(name);
+    throw Py.attributeError(name);
   }
 
-  public PyObject lookup(PyString name) {
-    Link l = find(name);
-    if (l != null) return l.value;
-    
-    //PyObject obj = locals.getItem(name);
-    //if (obj == null) {
-      PyObject obj = globals.getItem(name);
-    //}
-    if (obj == null) {
-      obj = builtins.getItem(name);
+  /**
+   * Returns the value of a local variable (if defined) or global or built-in variable.
+   * If no such variable exists, a <code>NameError</code> is raised.
+   */
+  public PyObject getLocal(PyString name) {
+    PyObject value = locals.getItem(name);
+    if (value == null) {
+      value = getGlobal(name);
     }
-    if (obj == null) {
-      throw attributeError(name);
-    }
-    return obj;
+    return value;
   }
 
-  public void bind(PyString name, PyObject value) {
-    _locals = new Link(_locals, name, value);
-    if (back == null) globals.setItem(name, value);
-    //locals.setItem(name, value);
+  /**
+   * Updates or creates a local variable. The may shadow a global variable.
+   */
+  public void setLocal(PyString name, PyObject value) {
+    locals.setItem(name, value);
   }
 
-  public void unbind(PyString name) {
-    //locals.delItem(name);
-  }
-  
-  Link find(PyString name) {
-    for (Link l = _locals; l != null; l = l.next) {
-      if (l.name == name) return l;
+  /**
+   * Deletes an existing local variable.
+   * If no such variable exists, a <code>NameError</code> is raised.
+   */
+  public void delLocal(PyString name) {
+    if (!locals.hasItem(name)) {
+      throw Py.nameError(name);
     }
-    return null;
+    locals.delItem(name);
   }
+
+  /**
+   * Return the value of a global or built-in variable.
+   * If no such variable exists, a <code>NameError</code> is raised.
+   */
+  public PyObject getGlobal(PyString name) {
+    PyObject value = globals.getItem(name);
+    if (value == null) {
+      value = builtins.getItem(name);
+      if (value == null) {
+        throw Py.nameError(name);
+      }
+    }
+    return value;
+  }
+
+  /**
+   * Updates or creates a global variable. This may shadow a built-in variable.
+   */
+  public void setGlobal(PyString name, PyObject value) {
+    globals.setItem(name, value);
+  }
+
+  /**
+   * Deletes an existing global variable. Built-in variables cannot be deleted.
+   * If no such variable exists, a <code>NameError</code> is raised.
+   */
+  public void delGlobal(PyString name) {
+    if (!globals.hasItem(name)) {
+      throw Py.nameError(name);
+    }
+    globals.delItem(name);
+  }
+
 }
