@@ -113,10 +113,6 @@ public class PyTuple extends PyImmutableSeq implements Iterable<PyObject> {
     return b.toString();
   }
 
-  PyObject[] objects() { //TODO should not reveal this information
-    return objects;
-  }
-
   // --------------------------------------------------------------------------------------------------------
 
   @Override
@@ -177,7 +173,5 @@ public class PyTuple extends PyImmutableSeq implements Iterable<PyObject> {
     nobjects[length] = obj;
     return new PyTuple(nobjects);
   }
-
-
 
 }

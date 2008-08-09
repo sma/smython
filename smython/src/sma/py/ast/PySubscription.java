@@ -27,7 +27,7 @@ public class PySubscription extends PyExpr {
   public PyObject eval(PyFrame frame) {
     PyObject value = primary.eval(frame).getItem(expressions.eval(frame));
     if (value == null) {
-      throw new RuntimeException("KeyError");
+      throw new RuntimeException("KeyError");//TODO needs to be Python exception
     }
     return value;
   }

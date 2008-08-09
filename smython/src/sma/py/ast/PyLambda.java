@@ -26,13 +26,14 @@ public class PyLambda extends PyExpr {
 
   @Override
   public PyObject eval(PyFrame frame) {
+    //TODO no need to do this every time
     PyExprList list = new PyExprList();
     list.add(expr);
     PySuite suite = new PySuite();
     suite.add(new PyReturnStmt(list));
 
     return new PyUserFunction(
-      PyObject.intern("<lambda>"), //TODO
+      PyObject.intern("<lambda>"), //TODO intern this only once
       parameters.nargs,
       parameters.names,
       parameters.inits.evalAsTuple(frame),

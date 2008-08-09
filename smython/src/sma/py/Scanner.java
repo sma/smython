@@ -12,6 +12,8 @@ public class Scanner {
   private static final String[] KEYWORDS = ("and assert break class continue " +
       "def del elif else except exec finally for from global if import in is " +
       "lambda not or pass print raise return try while").split(" ");
+
+  public static final boolean VERSION_1_4 = true;
   
   private final String source;
   private int index;
@@ -564,7 +566,7 @@ public class Scanner {
     back();
     token = b.toString();
     for (String keyword : KEYWORDS) {
-      if (keyword.equals("assert")) continue; // for Python 1.4, assert is no keyword
+      if (VERSION_1_4 && keyword.equals("assert")) continue;
       if (keyword.equals(token)) {
         token = keyword;
         return keyword;

@@ -30,6 +30,7 @@ public class PyExecStmt extends PyStmt {
   public void execute(PyFrame frame) {
     PyFrame evalFrame = frame;
     if (globals != null) {
+      //TODO constructing the frame is wrong
       PyDict gdict = (PyDict) globals.eval(frame);
       PyDict ldict = gdict;
       if (locals != null) {
@@ -37,7 +38,8 @@ public class PyExecStmt extends PyStmt {
       }
       evalFrame = new PyFrame(gdict, ldict);
     }
-    new Parser(expr.eval(frame).str().value()).interactiveInput().execute(evalFrame); //TODO
+    //TODO exec also support code objects
+    new Parser(expr.eval(frame).str().value()).interactiveInput().execute(evalFrame);
   }
 
 }

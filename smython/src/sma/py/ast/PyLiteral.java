@@ -18,7 +18,7 @@ public class PyLiteral extends PyExpr {
 
   @Override
   public String toString() {
-    return value == null ? "None" : value.toString();
+    return value == null ? "<null>" : value.toString();
   }
 
   @Override
