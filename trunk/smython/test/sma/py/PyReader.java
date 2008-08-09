@@ -6,20 +6,21 @@ package sma.py;
 import java.io.*;
 
 /**
- * Tries to read in all Python files found in the given folder(s) to exercise the scanner.
+ * Tries to read in all Python files found in the given folder(s) to exercise the parser and scanner.
  */
 public class PyReader {
-
-
   public static void main(String[] args) throws IOException {
-    args = new String[]{"/Users/sma/Desktop/Python-1.6.1/Lib/test"};
+    args = new String[]{"/Users/sma/Work/Python-1.4/Lib/test"};
     for (String name : args) {
-      read(new File(name));
+      search(new File(name));
     }
-    //scan(new File("/Users/sma/Desktop/Python-1.6.1/Lib/dos-8x3/test_gra.py"));
   }
 
-  private static void read(File dir) throws IOException {
+  /**
+   * Traverses a directory recursively for files ending in ".py", calling
+   * the scanner and parser on each file found.
+   */
+  private static void search(File dir) throws IOException {
     File[] files = dir.listFiles(new FileFilter() {
       public boolean accept(File pathname) {
         return pathname.isDirectory() || pathname.getName().endsWith(".py");
@@ -27,15 +28,19 @@ public class PyReader {
     });
     for (File file : files) {
       if (file.isDirectory()) {
-        read(file);
+        search(file);
       } else {
-        scan(file);
-        parse(file);
+        String source = read(file);
+        scan(file, source);
+        parse(file, source);
       }
     }
   }
 
-  private static void scan(File file) throws IOException {
+  /**
+   * Reads the contents of the given file, returing it as string.
+   */
+  private static String read(File file) throws IOException {
     StringBuilder b = new StringBuilder(16384);
     char[] buf = new char[4096];
     FileReader r = new FileReader(file);
@@ -47,29 +52,21 @@ public class PyReader {
     } finally {
       r.close();
     }
+    return b.toString();
+  }
 
+  private static void scan(File file, String source) throws IOException {
     System.out.println("Scanning " + file.getPath());
-    Scanner scanner = new Scanner(b.toString());
+    Scanner scanner = new Scanner(source);
     while (scanner.tokenType != null) {
       scanner.advance();
     }
   }
 
-  private static void parse(File file) throws IOException {
-    StringBuilder b = new StringBuilder(16384);
-    char[] buf = new char[4096];
-    FileReader r = new FileReader(file);
-    try {
-      int len;
-      while ((len = r.read(buf)) != -1) {
-        b.append(buf, 0, len);
-      }
-    } finally {
-      r.close();
-    }
-
+  private static void parse(File file, String source) throws IOException {
     System.out.println("Parsing " + file.getPath());
-    Parser parser = new Parser(b.toString());
+    Parser parser = new Parser(source);
     parser.interactiveInput();
+    //System.out.println(parser.interactiveInput());
   }
 }
