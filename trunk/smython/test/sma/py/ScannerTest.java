@@ -154,9 +154,8 @@ public class ScannerTest extends TestCase {
   private String scan(String source, boolean autoNewline) {
     Scanner scanner = new Scanner(source);
     StringBuilder b = new StringBuilder();
-    String t;
-    while ((t = scanner.getToken()) != null) {
-      b.append(' ').append(t);
+    while (scanner.tokenType != null) {
+      b.append(' ').append(scanner.tokenType); scanner.advance();
     }
     if (autoNewline) {
       assertTrue(b.toString().endsWith(" NEWLINE"));
