@@ -5,8 +5,7 @@ package sma.py.ast;
 
 import java.util.List;
 
-import sma.py.rt.PyFrame;
-import sma.py.rt.PyString;
+import sma.py.rt.*;
 
 /**
  * Represents the <code>import</code> statement, see §6.11.
@@ -25,8 +24,14 @@ public class PyImportStmt extends PyStmt {
 
   @Override
   public void execute(PyFrame frame) {
-    // TODO Auto-generated method stub
-    throw new UnsupportedOperationException();
+    for (PyString name : modules) {
+      if (name.value().equals("sys")) { //TODO need to generalize
+        PyModule module = new PyModule(new PyDict());
+        module.setAttr(PyObject.intern("__name__"), name);
+        module.setAttr(PyObject.intern("maxint"), PyObject.make(2147483647));
+        frame.bind(name, module);
+      }
+    }
   }
 
 }
