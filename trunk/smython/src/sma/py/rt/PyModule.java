@@ -4,5 +4,52 @@
 package sma.py.rt;
 
 public class PyModule extends PyObject {
+  private PyDict dict;
 
+  public PyModule(PyDict dict) {
+    this.dict = dict;
+  }
+
+  private PyString getName() {
+    return (PyString) dict.getItem(__NAME__);
+  }
+
+  private PyString getFile() {
+    return (PyString) dict.getItem(intern("__file__"));
+  }
+
+  @Override
+  public String toString() {
+    PyString file = getFile();
+    return "<module " + getName() + (file == null ? " (built-in)" : " from " + file) + ">";
+  }
+
+  @Override
+  public PyObject getAttr(PyString name) {
+    if (name == __DICT__) {
+      return this.dict;
+    }
+    PyObject value = dict.getItem(name);
+    if (value != null) {
+      return value;
+    }
+    throw attributeError(name);
+  }
+
+  @Override
+  public void setAttr(PyString name, PyObject value) {
+    if (name == __DICT__) {
+      this.dict = (PyDict) value;
+    } else {
+      dict.setItem(name, value);
+    }
+  }
+
+  @Override
+  public void delAttr(PyString name) {
+    if (name == __DICT__) {
+      throw typeError("readonly attribute");
+    }
+    dict.delItem(name);
+  }
 }

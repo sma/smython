@@ -574,9 +574,9 @@ public class Parser extends Scanner {
    */
   PyString dottedName() {
     StringBuilder b = new StringBuilder(64);
-    b.append(name("name expected"));
+    b.append(name("name expected").value());
     while (match(".")) {
-      b.append(name("name expected"));
+      b.append(name("name expected").value());
     }
     return PyObject.make(b.toString());
   }
