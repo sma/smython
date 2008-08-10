@@ -2,74 +2,70 @@
 
 == 1. General ==
 
- * no builtin functions, no builtin modules  
+ * no builtin functions, no builtin modules
  * scanner & parser simply abort on errors
- * no exception hierarchy 
- * code was written against 1.4 spec, 1.6 spec is new goal
+ * no exception hierarchy
+ * code was written against 1.4 spec, 1.6 spec is new goal; not everything checked
 
-== 2. Lexical Analysis ==
+== 2. Lexical Analysis == 
 
- * scanner ignores \t
  * scanner allows spaces or comments after trailing \ (extension)
- * no multiline strings
- * no string escapes
- * no rawstrings
- * everything is considered to be unicode
- * no floats, no complex numbers
- * no lowercase "l" for long integers allowed
+ * everything is considered to be unicode - no bytestrings
+ * no complex numbers
 
 == 3. Data Model ==
 
  * no id() builtin function
  * no type() builtin function
- * try/except doesn't work correctly
- * no {{{__}}}members{{{__}}} or {{{__}}}methods{{{__}}} attributes
+ * try/except have no traceback
+ * no {{{__members__}}} or {{{__methods__}}} attributes
  * no Ellipsis type and no ... object
- * no floats, no complex numbers
- * no explicit unicode string, instead normal string is UTF-16
+ * no floats
+ * no complex numbers
+ * no explicit unicode string, instead normal string is already UTF-16
  * no len() builtin function
  * no docstrings for any kind of function, method or class
  * functions and methods lack most special attributes
- * clases most lack special atttributes
- * module objects are not implemented at all
+ * classes lack most special attributes
+ * module objects are not implemented correctly
  * no file objects
  * code objects are not supported (internal object, I use AST Nodes)
  * frame objects only rudimentary
  * no traceback objects
  * no slice objects 
- * no right-side {{{__}}}rXX{{{__}}} methods, no {{{__}}}coerce{{{__}}}
+ * no right-side {{{__rXX__}}} methods, no {{{__coerce__}}}
  * coercion rule not implemented
 
 == 4. Execution model ==
 
- * no exec, execfile(), eval() or input()
- * no builtin namespace, no support for globals
- * no {{{__}}}builtin{{{__}}} namespace
- * no {{{__}}}main{{{__}}} namespace
- * exceptions can be raised and caught but exeception hierarchy is non-existant
+ * no execfile(), eval() or input()
+ * no builtins module
+ * no {{{__builtin__}}} namespace
+ * no {{{__main__}}} namespace
+ * exceptions can be raised and caught but exception hierarchy is non-existant
 
 == 5. Expressions ==
 
  * arithmetic conversions (coercion rules) not implemented
  * no private name mangling
- * extended slicing not implementd (I didn't unstand what to do)
+ * extended slicing not implemented (I didn't understand what to do)
  * assigning to tuple parameter in functions doesn't work
- * never checked whether % is correctly implemented
+ * never checked whether % is correctly implemented for negative numbers
  * no divmod() builtin function
  * negative shift counts do not raise exception (extension)
  * < or > for objects of different type compare hash values! (simulating pointer comparison)
 
 == 6. Simple statements ==
 
- * assert does not check for {{{__}}}debug{{{__}}}
+ * assert does not check for {{{__debug__}}}
  * assign to nested tuples never tested - probably doesn't work
  * assignment only works with tuples as defined by Python 1.4, relaxed rules not supported
  * del: not tested
  * print: str() implementation is incomplete
+ * print: multiple values are printed as tuple; no space insertion
  * raise: two or three argument variant do not work
  * import: not supported
- * global: ignored, doesn't work with the current way the parser constructs the AST
- * exec: not supported
+ * no {{{*}}} and {{{**}}} expansion in calls (new in 1.6)
 
 == 7. Compound statements ==
 
@@ -83,9 +79,3 @@
 
  * cannot execute files
  * no eval(), execfile() or input() builtin functions
-
-
-
-
-
-
