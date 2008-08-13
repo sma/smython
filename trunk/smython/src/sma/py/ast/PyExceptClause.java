@@ -3,9 +3,9 @@
  */
 package sma.py.ast;
 
+import sma.py.rt.Py;
 import sma.py.rt.PyFrame;
 import sma.py.rt.PyObject;
-import sma.py.rt.Py;
 import sma.py.rt.PyTuple;
 
 /**

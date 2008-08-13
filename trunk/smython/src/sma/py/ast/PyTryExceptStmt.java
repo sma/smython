@@ -3,10 +3,10 @@
  */
 package sma.py.ast;
 
-import java.util.List;
-
 import sma.py.rt.Py;
 import sma.py.rt.PyFrame;
+
+import java.util.List;
 
 /**
  * Represents the <code>try/except</code> statement, see §7.4.

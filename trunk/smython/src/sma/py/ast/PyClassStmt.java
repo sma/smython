@@ -3,7 +3,11 @@
  */
 package sma.py.ast;
 
-import sma.py.rt.*;
+import sma.py.rt.PyClass;
+import sma.py.rt.PyDict;
+import sma.py.rt.PyFrame;
+import sma.py.rt.PyString;
+import sma.py.rt.PyTuple;
 
 /**
  * Represents a <code>class</code> definition statement, see §7.6.

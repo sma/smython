@@ -3,10 +3,14 @@
  */
 package sma.py.ast;
 
+import sma.py.rt.Py;
+import sma.py.rt.PyDict;
+import sma.py.rt.PyFrame;
+import sma.py.rt.PyObject;
+import sma.py.rt.PyTuple;
+
 import java.util.ArrayList;
 import java.util.List;
-
-import sma.py.rt.*;
 
 /**
  * Represents a list of {@code PyExpr} nodes. An expression list knows whether it is an assignment
