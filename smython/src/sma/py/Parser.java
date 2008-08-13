@@ -3,16 +3,72 @@
  */
 package sma.py;
 
-import java.math.BigInteger;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Set;
-import java.util.HashSet;
-
-import sma.py.ast.*;
+import sma.py.ast.PyAddExpr;
+import sma.py.ast.PyAndExpr;
+import sma.py.ast.PyAssertStmt;
+import sma.py.ast.PyAttrRef;
+import sma.py.ast.PyBitAndExpr;
+import sma.py.ast.PyBitInvert;
+import sma.py.ast.PyBitOrExpr;
+import sma.py.ast.PyBitXorExpr;
+import sma.py.ast.PyBreakStmt;
+import sma.py.ast.PyCall;
+import sma.py.ast.PyClassStmt;
+import sma.py.ast.PyComparison;
+import sma.py.ast.PyContinueStmt;
+import sma.py.ast.PyDefStmt;
+import sma.py.ast.PyDelStmt;
+import sma.py.ast.PyDictConstr;
+import sma.py.ast.PyDivExpr;
+import sma.py.ast.PyExceptClause;
+import sma.py.ast.PyExecStmt;
+import sma.py.ast.PyExpr;
+import sma.py.ast.PyExprList;
+import sma.py.ast.PyExprStmt;
+import sma.py.ast.PyForStmt;
+import sma.py.ast.PyFromImportStmt;
+import sma.py.ast.PyGlobalIdentifier;
+import sma.py.ast.PyGlobalStmt;
+import sma.py.ast.PyIdentifier;
+import sma.py.ast.PyIfStmt;
+import sma.py.ast.PyImportStmt;
+import sma.py.ast.PyLambda;
+import sma.py.ast.PyListConstr;
+import sma.py.ast.PyLiteral;
+import sma.py.ast.PyLshiftExpr;
+import sma.py.ast.PyModExpr;
+import sma.py.ast.PyMulExpr;
+import sma.py.ast.PyNegate;
+import sma.py.ast.PyNot;
+import sma.py.ast.PyOrExpr;
+import sma.py.ast.PyParamList;
+import sma.py.ast.PyPassStmt;
+import sma.py.ast.PyPositive;
+import sma.py.ast.PyPowExpr;
+import sma.py.ast.PyPrintStmt;
+import sma.py.ast.PyRaiseStmt;
+import sma.py.ast.PyReturnStmt;
+import sma.py.ast.PyRshiftExpr;
+import sma.py.ast.PySlicing;
+import sma.py.ast.PyStmt;
+import sma.py.ast.PyStringConversion;
+import sma.py.ast.PySubExpr;
+import sma.py.ast.PySubscript;
+import sma.py.ast.PySubscription;
+import sma.py.ast.PySuite;
+import sma.py.ast.PyTryExceptStmt;
+import sma.py.ast.PyTryFinallyStmt;
+import sma.py.ast.PyTupleConstr;
+import sma.py.ast.PyWhileStmt;
 import sma.py.rt.PyObject;
 import sma.py.rt.PyString;
 import sma.py.rt.PyTuple;
+
+import java.math.BigInteger;
+import java.util.ArrayList;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Set;
 
 /**
  * Takes a source and returns an abstract syntax tree.
