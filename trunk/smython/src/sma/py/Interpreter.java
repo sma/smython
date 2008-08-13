@@ -3,13 +3,24 @@
  */
 package sma.py;
 
+import sma.py.rt.Py;
+import sma.py.rt.PyBuiltinFunction;
+import sma.py.rt.PyClass;
+import sma.py.rt.PyDict;
+import sma.py.rt.PyFrame;
+import sma.py.rt.PyInstance;
+import sma.py.rt.PyInt;
+import sma.py.rt.PyList;
+import sma.py.rt.PyLong;
+import sma.py.rt.PyObject;
+import sma.py.rt.PyString;
+import sma.py.rt.PyTuple;
+
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.io.Reader;
 import java.util.List;
-
-import sma.py.rt.*;
 
 /**
  * Evaluates chunks of code in a global context, implementing a (subset of) a Python interpreter.
