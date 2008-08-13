@@ -3,13 +3,19 @@
  */
 package sma.py.rt;
 
-public class PyInstance extends PyCallable {
+import java.util.Iterator;
+
+public class PyInstance extends PyCallable implements Iterable<PyObject> {
   private PyClass clasz;
   private PyDict dict;
 
   public PyInstance(PyClass clasz) {
     this.clasz = clasz;
     this.dict = new PyDict();
+  }
+
+  public PyClass getClasz() {
+    return clasz;
   }
   
   @Override
@@ -107,5 +113,65 @@ public class PyInstance extends PyCallable {
     }
     f = clasz.getAttr0(intern("__len__")); //TODO constant
     return f == null || f.call(this).truth();
+  }
+
+  // --------------------------------------------------------------------------------------------------------
+
+  public Iterator<PyObject> iterator() {
+    return new Iterator<PyObject>() {
+      private int index;
+      private boolean end;
+      private PyObject value;
+
+      public boolean hasNext() {
+        if (!end) {
+          if (value == null) {
+            try {
+              value = getItem(make(index++));
+            } catch (Py.RaiseSignal s) {
+              if ("IndexError".equals(s.getException().str().value())) {
+                end = true;
+              }
+            }
+          }
+        }
+        return !end;
+      }
+
+      public PyObject next() {
+        try {
+          return value;
+        } finally {
+          value = null;
+        }
+      }
+
+      public void remove() {
+        throw new UnsupportedOperationException();
+      }
+    };
+  }
+
+  @Override
+  public PyObject getItem(PyObject key) {
+    PyObject f = clasz.getAttr0(intern("__getitem__")); //TODO constant
+    if (f != null) {
+      return f.call(this, key);
+    }
+    return super.getItem(key);
+  }
+
+  @Override
+  public PyObject len() {
+    PyObject f = clasz.getAttr0(intern("__len__")); //TODO constant
+    if (f != null) {
+      return f.call(this);
+    }
+    return super.len();
+  }
+
+  @Override
+  public boolean exceptionType() {
+    return true;
   }
 }

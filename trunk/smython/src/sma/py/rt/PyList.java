@@ -106,4 +106,23 @@ public class PyList extends PySeq implements Iterable<PyObject> {
   public List<PyObject> list() {
     return list;
   }
+
+  public void append(PyObject object) {
+    list.add(object);
+  }
+
+  @Override
+  public PyObject getAttr(PyString name) {
+    String n = name.value();
+    if ("append".equals(n)) {
+      return new PyBuiltinFunction() {
+        @Override
+        public PyObject apply(PyFrame frame, PyTuple positionalArguments, PyDict keywordArguments) {
+          append(positionalArguments.get(0));
+          return None;
+        }
+      };
+    }
+    return super.getAttr(name);
+  }
 }

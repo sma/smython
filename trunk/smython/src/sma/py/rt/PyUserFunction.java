@@ -39,18 +39,16 @@ public class PyUserFunction extends PyFunction {
 
   @Override
   public PyObject apply(PyFrame frame, PyTuple positionalArguments, PyDict keywordArguments) {
-    frame = new PyFrame(frame, new PyDict(), frame.getGlobals(), frame.getBuiltins());
+    frame = new PyFrame(frame, new PyDict(), globals, frame.getBuiltins());
 
     int n = Math.min(params.size() , positionalArguments.size());
 
     // bind as many positional arguments as possible
     for (int i = 0; i < n; i++) {
-      PyString name = (PyString) params.get(i); //TODO - could be a PyTuple
-      frame.setLocal(name, positionalArguments.get(i));
-      if (keywordArguments.getItem(name) != null) {
-        throw Py.typeError("multiple values for '" + name + "'");
-      }
+      bindArgument(params.get(i), positionalArguments.get(i), keywordArguments, frame);
     }
+
+    // left over positional arguments are bound to a rest parameter
     if (rest != null) {
       frame.setLocal(rest, positionalArguments.getSlice(make(n), positionalArguments.len()));
     } else if (positionalArguments.size() > n) {
@@ -58,26 +56,45 @@ public class PyUserFunction extends PyFunction {
     }
 
     // bind keyword parameters, otherwise supply default
-    for (int i = n; i < params.size(); i++) {
-      PyString name = (PyString) params.get(i); //TODO - could be a PyTuple
-      PyObject value = keywordArguments.getItem(name);
-      if (value == null) {
-        if (i < nargs) {
-          throw Py.typeError("not enough parameters");
+    for (int i = n, size = params.size(); i < size; i++) {
+      PyObject nameOrTuple = params.get(i);
+      if (nameOrTuple instanceof PyString) {
+        PyString name = (PyString) nameOrTuple;
+        PyObject value = keywordArguments.getItem(name);
+        if (value == null) {
+          if (i < nargs) {
+            throw Py.typeError("not enough parameters");
+          }
+          value = defaults.get(i - nargs);
+        } else {
+          keywordArguments.delItem(name);
         }
-        value = defaults.get(i - nargs);
+        frame.setLocal(name, value);
       } else {
-        keywordArguments.delItem(name);
+        PyTuple tuple = (PyTuple) nameOrTuple;
+        PyTuple values = (PyTuple) keywordArguments.getItem(name); //TODO cast may fail
+        if (values == null) {
+          if (i < nargs) {
+            throw Py.typeError("not enough parameters");
+          }
+          values = (PyTuple) defaults.get(i - nargs); //TODO cast may fail
+        } else {
+          keywordArguments.delItem(name);
+        }
+        for (int j = 0, len = tuple.size(); j < len; j++) {
+          bindArgument(tuple.get(j), values.get(j), keywordArguments, frame);
+        }
       }
-      frame.setLocal(name, value);
     }
 
+    // left over keyword arguments are bound to a rest parameter
     if (kwrest != null) {
       frame.setLocal(kwrest, keywordArguments);
     } else if (keywordArguments.size() > 0) {
-      throw Py.typeError("to many keyword arguments");
+      throw Py.typeError("too many keyword arguments");
     }
 
+    // execute the function
     try {
       suite.execute(frame);
     } catch (Py.ReturnSignal s) {
@@ -86,4 +103,19 @@ public class PyUserFunction extends PyFunction {
     return None;
   }
 
+  private static void bindArgument(PyObject nameOrTuple, PyObject argument, PyDict kwargs, PyFrame frame) {
+    if (nameOrTuple instanceof PyString) {
+      PyString name = (PyString) nameOrTuple;
+      frame.setLocal(name, argument);
+      if (kwargs.getItem(name) != null) {
+        throw Py.typeError("multiple values for '" + name + "'");
+      }
+    } else {
+      PyTuple tuple = (PyTuple) nameOrTuple;
+      PyTuple values = (PyTuple) argument; //TODO cast may fail
+      for (int j = 0, len = tuple.size(); j < len; j++) {
+        bindArgument(tuple.get(j), values.get(j), kwargs, frame);
+      }
+    }
+  }
 }
