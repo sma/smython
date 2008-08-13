@@ -107,13 +107,17 @@ public class PyInt extends PyNumber {
 
   @Override
   public PyObject div(PyObject other) {
-    if (other instanceof PyInt) {
-      return make((long) value / ((PyInt) other).value);
+    try {
+      if (other instanceof PyInt) {
+        return make((long) value / ((PyInt) other).value);
+      }
+      if (other instanceof PyLong) {
+        return make(as_bigint().divide(other.as_bigint()));
+      }
+      return super.add(other);
+    } catch (ArithmeticException e) {
+      throw Py.raise(intern("ZeroDivisionError"), None);
     }
-    if (other instanceof PyLong) {
-      return make(as_bigint().divide(other.as_bigint()));
-    }
-    return super.add(other);
   }
 
   @Override

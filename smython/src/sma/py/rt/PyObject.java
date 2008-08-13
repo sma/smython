@@ -299,4 +299,15 @@ public abstract class PyObject implements Comparable<PyObject> {
   public PyObject apply(PyFrame frame, PyTuple positionalArguments, PyDict keywordArguments) {
     throw new UnsupportedOperationException();
   }
+
+  // --------------------------------------------------------------------------------------------------------
+  // exceptions
+
+  public boolean exceptionType() {
+    return false;
+  }
+
+  public boolean exceptionMatches(PyObject object) {
+    return false;
+  }
 }

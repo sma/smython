@@ -4,9 +4,9 @@
 package sma.py.ast;
 
 import sma.py.rt.Py;
+import sma.py.rt.PyCallable;
 import sma.py.rt.PyFrame;
 import sma.py.rt.PyObject;
-import sma.py.rt.PyTuple;
 
 /**
  * Represents the <code>for</code> statement, see §7.3.
@@ -31,7 +31,9 @@ public class PyForStmt extends PyStmt {
 
   @Override
   public void execute(PyFrame frame) {
-    PyTuple tuple = (PyTuple) expressions.eval(frame);
+    PyCallable.frame = frame; //TODO HACK HACK HACK HACK HACK
+    @SuppressWarnings({"unchecked"})
+    Iterable<PyObject> tuple = (Iterable<PyObject>) expressions.eval(frame);
     for (PyObject obj : tuple) {
       try {
         targets.assign(frame, obj);

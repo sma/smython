@@ -70,13 +70,35 @@ public class PyClass extends PyCallable {
   public void delAttr(PyString name) {
     dict.delItem(name);
   }
-  
-  
 
   @Override
   public PyObject apply(PyFrame frame, PyTuple positionalArguments, PyDict keywordArguments) {
     PyInstance inst = new PyInstance(this);
     inst.init(frame, positionalArguments, keywordArguments);
     return inst;
+  }
+
+  @Override
+  public boolean exceptionType() {
+    return true;
+  }
+
+  @Override
+  public boolean exceptionMatches(PyObject object) {
+    if (object == this) {
+      return true;
+    }
+    if (object instanceof PyClass) {
+      for (PyObject c : ((PyClass) object).bases) {
+        if (exceptionMatches(c)) {
+          return true;
+        }
+      }
+    }
+    return false;
+  }
+
+  public boolean isInstance(PyObject object) {
+    return object instanceof PyInstance && exceptionMatches(((PyInstance) object).getClasz());
   }
 }

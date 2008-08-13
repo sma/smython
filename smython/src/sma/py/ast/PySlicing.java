@@ -3,10 +3,10 @@
  */
 package sma.py.ast;
 
-import java.util.List;
-
 import sma.py.rt.PyFrame;
 import sma.py.rt.PyObject;
+
+import java.util.List;
 
 /**
  * Represents a slicing, see §5.3.3.

@@ -4,11 +4,13 @@
 package sma.py.rt;
 
 public abstract class PyCallable extends PyObject {
+  public static PyFrame frame; //TODO HACK HACK HACK
+
   @Override
   public PyObject call(PyInstance self, PyObject... arguments) {
     PyObject[] narguments = new PyObject[arguments.length + 1];
     narguments[0] = self;
     System.arraycopy(arguments, 0, narguments, 1, arguments.length);
-    return apply(null, new PyTuple(narguments), new PyDict()); // TODO
+    return apply(frame, new PyTuple(narguments), new PyDict()); // TODO
   }
 }

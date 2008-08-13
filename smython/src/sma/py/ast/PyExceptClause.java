@@ -6,6 +6,7 @@ package sma.py.ast;
 import sma.py.rt.PyFrame;
 import sma.py.rt.PyObject;
 import sma.py.rt.Py;
+import sma.py.rt.PyTuple;
 
 /**
  * Represents a <code>except</code> as part of a <code>try</code> statement.
@@ -29,9 +30,22 @@ public class PyExceptClause {
 
   public boolean execute(PyFrame frame, Py.RaiseSignal raise) {
     if (this.exception != null) {
-      PyObject ex = this.exception.eval(frame);
-      if (ex.compareTo(raise.getException()) != 0) {
-        return false;
+      PyObject exc = this.exception.eval(frame);
+      if (exc instanceof PyTuple) {
+        boolean found = false;
+        for (PyObject ex : (PyTuple) exc) {
+          if (!ex.exceptionMatches(raise.getException())) {
+            found = true;
+            break;
+          }
+        }
+        if (!found) {
+          return false;
+        }
+      } else {
+        if (!exc.exceptionMatches(raise.getException())) {
+          return false;
+        }
       }
       if (target != null) {
         target.assign(frame, raise.getInstance());

@@ -40,4 +40,9 @@ public class PyTupleConstr extends PyConstructor {
     values.assign(frame, value);
   }
 
+  @Override
+  public void del(PyFrame frame) {
+    values.del(frame);
+  }
+
 }

@@ -96,4 +96,18 @@ public class PyDict extends PyMapping implements Iterable<Entry<PyObject, PyObje
   public boolean hasItem(PyObject key) {
     return dict.containsKey(key);
   }
+
+  @Override
+  public PyObject getAttr(PyString name) {
+    String n = name.value();
+    if ("has_key".equals(n)) {
+      return new PyBuiltinFunction() {
+        @Override
+        public PyObject apply(PyFrame frame, PyTuple positionalArguments, PyDict keywordArguments) {
+          return PyDict.this.hasItem(positionalArguments.get(0)) ? True : False;
+        }
+      };
+    }
+    return super.getAttr(name);
+  }
 }

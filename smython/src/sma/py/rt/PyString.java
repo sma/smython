@@ -18,7 +18,7 @@ public class PyString extends PyImmutableSeq {
 
   @Override
   public boolean equals(Object obj) {
-    return obj instanceof PyString && str.equals(((PyString) obj).str);
+    return this == obj || obj instanceof PyString && str.equals(((PyString) obj).str);
   }
 
   @Override
@@ -127,7 +127,22 @@ public class PyString extends PyImmutableSeq {
   public PyObject getSlice(PyObject left, PyObject right) {
     int leftIndex = left.as_int();
     int rightIndex = right.as_int();
+    if (leftIndex < 0) {
+      leftIndex += str.length();
+    }
+    if (rightIndex < 0) {
+      rightIndex += str.length();
+    }
     return new PyString(str.substring(leftIndex, rightIndex));
   }
 
+  @Override
+  public boolean exceptionType() {
+    return true;
+  }
+
+  @Override
+  public boolean exceptionMatches(PyObject object) {
+    return this.equals(object);
+  }
 }

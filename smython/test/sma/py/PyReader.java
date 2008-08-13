@@ -14,6 +14,15 @@ public class PyReader {
     for (String name : args) {
       search(new File(name));
     }
+
+    Interpreter i = new Interpreter();
+    i.execute(read(new File("/Users/sma/Work/Python-1.4/Lib/test/test_support.py")));
+    i.execute(read(new File("/Users/sma/Work/Python-1.4/Lib/test/test_grammar.py")));
+    i.execute(read(new File("/Users/sma/Work/Python-1.4/Lib/test/test_opcodes.py")));
+    i.execute(read(new File("/Users/sma/Work/Python-1.4/Lib/test/test_operations.py")));
+    //i.execute(read(new File("/Users/sma/Work/Python-1.4/Lib/test/test_b1.py")));
+    //i.execute(read(new File("/Users/sma/Work/Python-1.4/Lib/test/test_b2.py")));
+    //i.execute(read(new File("/Users/sma/Work/Python-1.4/Lib/test/test_types.py")));
   }
 
   /**

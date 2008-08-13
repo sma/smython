@@ -14,3 +14,12 @@ def fib(n):
     return 1
   else: 
     return fib(n-1) + fib(n-2) + 1
+
+OverflowError = 'OverflowError'
+RuntimeError = 'RuntimeError'
+KeyboardInterrupt = 'KeyboardInterrupt'
+IndexError = 'IndexError'
+ZeroDivisionError = 'ZeroDivisionError'
+EOFError = 'EOFError'
+TypeError = 'TypeError'
+NameError = 'NameError'
