@@ -3,10 +3,10 @@
  */
 package sma.py.ast;
 
-import java.util.List;
-
 import sma.py.rt.PyFrame;
 import sma.py.rt.PyString;
+
+import java.util.List;
 
 /**
  * Represents the <code>global</code> statement, see §6.12.

@@ -3,12 +3,12 @@
  */
 package sma.py.ast;
 
-import java.util.ArrayList;
-import java.util.List;
-
 import sma.py.rt.PyFrame;
 import sma.py.rt.PyList;
 import sma.py.rt.PyObject;
+
+import java.util.ArrayList;
+import java.util.List;
 
 /**
  * Represents a list display, see §5.2.4.
