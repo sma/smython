@@ -13,6 +13,11 @@ public class PyNone extends PyObject {
   }
 
   @Override
+  public String toString() {
+    return "None";
+  }
+
+  @Override
   public PyString repr() {
     return NAME;
   }

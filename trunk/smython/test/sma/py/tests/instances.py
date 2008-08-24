@@ -85,3 +85,12 @@
 3
 >>> D().m()
 7
+
+### overriding +
+>>> class A:
+...   def __add__(self, a): return -a;
+...   def __radd__(self, a): return -a * 2;
+>>> A() + 3
+-3
+>>> 3 + A()
+-6

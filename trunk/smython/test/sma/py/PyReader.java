@@ -3,7 +3,10 @@
  */
 package sma.py;
 
-import java.io.*;
+import java.io.File;
+import java.io.FileFilter;
+import java.io.FileReader;
+import java.io.IOException;
 
 /**
  * Tries to read in all Python files found in the given folder(s) to exercise the parser and scanner.

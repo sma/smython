@@ -78,25 +78,6 @@ public class PyTuple extends PyImmutableSeq implements Iterable<PyObject> {
   }
 
   @Override
-  public Iterator<PyObject> iterator() {
-    return new Iterator<PyObject>() {
-      private int index = 0;
-
-      public boolean hasNext() {
-        return index < objects.length;
-      }
-
-      public PyObject next() {
-        return objects[index++];
-      }
-
-      public void remove() {
-        throw new UnsupportedOperationException();
-      }
-    };
-  }
-
-  @Override
   public String toString() {
     StringBuilder b = new StringBuilder();
     b.append('(');
@@ -111,13 +92,6 @@ public class PyTuple extends PyImmutableSeq implements Iterable<PyObject> {
     }
     b.append(')');
     return b.toString();
-  }
-
-  // --------------------------------------------------------------------------------------------------------
-
-  @Override
-  public PyString repr() {
-    return make(toString());
   }
 
   // --------------------------------------------------------------------------------------------------------
@@ -151,6 +125,20 @@ public class PyTuple extends PyImmutableSeq implements Iterable<PyObject> {
     return new PyTuple(nobjects);
   }
 
+  @Override
+  public PyIterator iter() {
+    return new PyIterator() {
+      private int index = 0;
+
+      public PyObject next() {
+        if (index < objects.length) {
+          return objects[index++];
+        }
+        return null;
+      }
+    };
+  }
+
   private int normalize(PyObject index) {
     int n = index.as_int();
     return n < 0 ? n + size() : n;
@@ -174,4 +162,20 @@ public class PyTuple extends PyImmutableSeq implements Iterable<PyObject> {
     return new PyTuple(nobjects);
   }
 
+  public Iterator<PyObject> iterator() {
+    return new Iterator<PyObject>() {
+      private int index;
+      public boolean hasNext() {
+        return index < objects.length;
+      }
+
+      public PyObject next() {
+        return objects[index++];
+      }
+
+      public void remove() {
+        throw new UnsupportedOperationException();
+      }
+    };
+  }
 }

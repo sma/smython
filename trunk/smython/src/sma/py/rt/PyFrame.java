@@ -10,31 +10,33 @@ public class PyFrame extends PyObject {
   private final PyFrame back;
   private final PyDict locals;
   private final PyDict globals;
-  private final PyDict builtins;
 
   private static final PyString F_BACK = intern("f_back");
   private static final PyString F_LOCALS = intern("f_locals");
   private static final PyString F_GLOBALS = intern("f_globals");
-  private static final PyString F_BUILTINS = intern("f_builtins");
+  private static final PyString S__BUILTINS__ = intern("__builtins__");
 
+  /**
+   * Constructs the initial execution context. There is no "back" context and both locals and
+   * globals share the same dictionary.
+   */
   public PyFrame() {
-    this(null, null, null, new PyDict());
+    this(null, null, null);
   }
 
   /**
    * Constructs a new execution context. If "back" is {@code null}, a global context is created.
-   * Otherwise a nested context is created which normally shares the dictionaries for global and
-   * built-in variables with its ancestor. 
+   * Otherwise a nested context is created which normally shares the dictionary for global variables
+   * with its ancestor.
    */
-  public PyFrame(PyFrame back, PyDict locals, PyDict globals, PyDict builtins) {
+  public PyFrame(PyFrame back, PyDict locals, PyDict globals) {
     this.back = back;
-    if (back == null) {
+    if (locals == null) {
       this.locals = this.globals = new PyDict();
     } else {
       this.locals = locals;
       this.globals = globals;
     }
-    this.builtins = builtins;
   }
 
   public PyDict getLocals() {
@@ -46,7 +48,15 @@ public class PyFrame extends PyObject {
   }
 
   public PyDict getBuiltins() {
-    return builtins;
+    PyObject value = globals.getItem(S__BUILTINS__);
+    if (value instanceof PyModule) {
+      return ((PyModule) value).getDict();
+    }
+    try {
+      return (PyDict) value;
+    } catch (ClassCastException e) {
+      throw Py.typeError("bad __builtins__ dictionary");
+    }
   }
 
   @Override
@@ -59,9 +69,6 @@ public class PyFrame extends PyObject {
     }
     if (name == F_GLOBALS) {
       return globals;
-    }
-    if (name == F_BUILTINS) {
-      return builtins;
     }
     throw Py.attributeError(name);
   }
@@ -79,7 +86,7 @@ public class PyFrame extends PyObject {
   }
 
   /**
-   * Updates or creates a local variable. The may shadow a global variable.
+   * Updates or creates a local variable. This may shadow a global variable.
    */
   public void setLocal(PyString name, PyObject value) {
     locals.setItem(name, value);
@@ -103,7 +110,7 @@ public class PyFrame extends PyObject {
   public PyObject getGlobal(PyString name) {
     PyObject value = globals.getItem(name);
     if (value == null) {
-      value = builtins.getItem(name);
+      value = getBuiltins().getItem(name);
       if (value == null) {
         throw Py.nameError(name);
       }

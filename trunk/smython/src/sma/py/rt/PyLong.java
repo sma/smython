@@ -49,11 +49,6 @@ public class PyLong extends PyNumber {
   // common API
 
   @Override
-  public PyString repr() {
-    return make(toString());
-  }
-
-  @Override
   public PyInt cmp(PyObject other) {
     if (other instanceof PyInt) {
       return make(value.compareTo(BigInteger.valueOf(((PyInt) other).value())));
@@ -66,7 +61,7 @@ public class PyLong extends PyNumber {
 
   @Override
   public PyInt nonzero() {
-    return make(value.equals(BigInteger.ZERO) ? 0 : 1);
+    return value.equals(BigInteger.ZERO) ? False : True;
   }
 
   // ----------------------------------------------------------------------------------------------
@@ -91,7 +86,7 @@ public class PyLong extends PyNumber {
     if (other instanceof PyLong) {
       return make(value.subtract(other.as_bigint()));
     }
-    return super.add(other);
+    return super.sub(other);
   }
 
   @Override
@@ -102,7 +97,7 @@ public class PyLong extends PyNumber {
     if (other instanceof PyLong) {
       return make(value.multiply(other.as_bigint()));
     }
-    return super.add(other);
+    return super.mul(other);
   }
 
   @Override
@@ -113,7 +108,7 @@ public class PyLong extends PyNumber {
     if (other instanceof PyLong) {
       return make(value.divide(other.as_bigint()));
     }
-    return super.add(other);
+    return super.div(other);
   }
 
   @Override
@@ -124,7 +119,7 @@ public class PyLong extends PyNumber {
     if (other instanceof PyLong) {
       return make(value.mod(other.as_bigint()));
     }
-    return super.add(other);
+    return super.mod(other);
   }
 
   @Override
@@ -180,79 +175,6 @@ public class PyLong extends PyNumber {
   public PyObject invert() {
     return make(value.not());
   }
-
-  // ----------------------------------------------------------------------------------------------
-  // private arithmetic API
-
-  /*
-  public PyObject add(PyLong other) {
-    return make(value.add(other.value));
-  }
-
-  public PyObject sub(PyLong other) {
-    return make(value.subtract(other.value));
-  }
-
-  public PyObject mul(PyLong other) {
-    return make(value.multiply(other.value));
-  }
-
-  public PyObject div(PyLong other) {
-    return make(value.divide(other.value));
-  }
-
-  public PyObject mod(PyLong other) {
-    return make(value.mod(other.value));
-  }
-
-  public PyObject divmod(PyLong other) {
-    BigInteger[] b = value.divideAndRemainder(other.value);
-    return new PyTuple(make(b[0]), make(b[1]));
-  }
-
-  public PyObject lshift(PyLong other) {
-    return make(value.shiftLeft(other.asInt()));
-  }
-
-  public PyObject rshift(PyLong other) {
-    return make(value.shiftRight(other.asInt()));
-  }
-
-  public PyObject and(PyLong other) {
-    return make(value.and(other.value));
-  }
-
-  public PyObject xor(PyLong other) {
-    return make(value.xor(other.value));
-  }
-
-  public PyObject or(PyLong other) {
-    return make(value.or(other.value));
-  }
-
-  public PyObject neg() {
-    return make(value.negate());
-  }
-
-  public PyObject pos() {
-    return this;
-  }
-
-  public PyObject abs() {
-    return make(value.abs());
-  }
-
-  public PyObject invert() {
-    return make(value.not());
-  }
-
-  // ----------------------------------------------------------------------------------------------
-
-  //TODO check for overflow
-  private int asInt() {
-    return value.intValue();
-  }
-  */
 
   // ----------------------------------------------------------------------------------------------
 

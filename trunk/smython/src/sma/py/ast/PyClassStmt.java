@@ -32,7 +32,7 @@ public class PyClassStmt extends PyStmt {
   public void execute(PyFrame frame) {
     PyTuple classes = bases != null ? bases.evalAsTuple(frame) : new PyTuple(); //TODO there should be one empty tuple
     PyDict locals = new PyDict();
-    PyFrame classframe = new PyFrame(frame, locals, frame.getGlobals(), frame.getBuiltins());
+    PyFrame classframe = new PyFrame(frame, locals, frame.getGlobals());
     suite.execute(classframe);
     frame.setLocal(name, new PyClass(name, classes, locals));
   }

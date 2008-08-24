@@ -3,8 +3,6 @@
  */
 package sma.py.rt;
 
-
-
 public class PyString extends PyImmutableSeq {
   private final String str;
 

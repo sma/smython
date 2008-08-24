@@ -3,9 +3,7 @@
  */
 package sma.py.rt;
 
-import java.util.Iterator;
-
-public class PyInstance extends PyCallable implements Iterable<PyObject> {
+public class PyInstance extends PyCallable {
   private PyClass clasz;
   private PyDict dict;
 
@@ -20,30 +18,35 @@ public class PyInstance extends PyCallable implements Iterable<PyObject> {
   
   @Override
   public String toString() {
-    return "<" + clasz.getAttr(__NAME__) + " object>";
+    return repr().value();
   }
 
   public void init(PyFrame frame, PyTuple positionalArguments, PyDict keywordArguments) {
-    PyObject f = clasz.getAttr0(intern("__init__"));  //TODO constant
+    PyObject f = clasz.getAttr0(S__INIT__);
     if (f != null) {
       f.apply(frame, positionalArguments.prepend(this), keywordArguments);
     } else if (positionalArguments.size() > 0 || keywordArguments.size() > 0) {
-      throw Py.typeError("constructor takes no arguments"); //TODO
+      throw Py.typeError("constructor takes no arguments");
     }
   }
 
   @Override
   public PyString repr() {
-    PyObject f = clasz.getAttr0(intern("__repr__")); //TODO constant
+    PyObject f = clasz.getAttr0(S__REPR__);
     if (f != null) {
-      return (PyString) f.call(this); //TODO cast
+      f = f.call(null, this);
+      try {
+        return (PyString) f;
+      } catch (ClassCastException e) {
+        throw Py.typeError("__repr__ returned non-string");
+      }
     }
     return make("<" + clasz.str() + " instance>");
   }
 
   @Override
   public PyObject apply(PyFrame frame, PyTuple positionalArguments, PyDict keywordArguments) {
-    return clasz.getAttr(intern("__call__")).apply(frame, positionalArguments, keywordArguments); //TODO constant
+    return clasz.getAttr(S__CALL__).apply(frame, positionalArguments, keywordArguments);
   }
 
   // ...
@@ -63,7 +66,7 @@ public class PyInstance extends PyCallable implements Iterable<PyObject> {
     if (o == null) {
       PyObject f = clasz.getAttr(__GETATTR__);
       if (f != null) {
-        return f.call(this, name);
+        return f.call(null, this, name);
       }
       throw Py.attributeError(name);
     }
@@ -76,13 +79,21 @@ public class PyInstance extends PyCallable implements Iterable<PyObject> {
   @Override
   public void setAttr(PyString name, PyObject value) {
     if (name == __CLASS__) {
-      clasz = (PyClass) value; //TODO cast
+      try {
+        clasz = (PyClass) value;
+      } catch (ClassCastException e) {
+        throw Py.typeError("__class__ must be a class object");
+      }
     } else if (name == __DICT__) {
-      dict = (PyDict) value; //TODO cast
+      try {
+        dict = (PyDict) value;
+      } catch (ClassCastException e) {
+        throw Py.typeError("__dict__ must be a dictionary object");
+      }
     }
     PyObject f = clasz.getAttr0(__SETATTR__);
     if (f != null) {
-      f.call(this, name, value);
+      f.call(null, this, name, value);
       return;
     }
     dict.setItem(name, value);
@@ -92,7 +103,7 @@ public class PyInstance extends PyCallable implements Iterable<PyObject> {
   public void delAttr(PyString name) {
     PyObject f = clasz.getAttr0(__DELATTR__);
     if (f != null) {
-      f.call(this, name);
+      f.call(null, this, name);
       return;
     }
     dict.delItem(name);
@@ -100,7 +111,7 @@ public class PyInstance extends PyCallable implements Iterable<PyObject> {
   
   @Override
   public PyObject abs() {
-    return clasz.getAttr(intern("__abs__")).call(this); //TODO constant
+    return clasz.getAttr(intern("__abs__")).call(null, this); //TODO constant
   }
   
   // --------------------------------------------------------------------------------------------------------
@@ -109,45 +120,28 @@ public class PyInstance extends PyCallable implements Iterable<PyObject> {
   public boolean truth() {
     PyObject f = clasz.getAttr0(intern("__nonzero__")); //TODO constant
     if (f != null) {
-      return f.call(this).truth();
+      return f.call(null, this).truth();
     }
     f = clasz.getAttr0(intern("__len__")); //TODO constant
-    return f == null || f.call(this).truth();
+    return f == null || f.call(null, this).truth();
   }
 
   // --------------------------------------------------------------------------------------------------------
 
-  public Iterator<PyObject> iterator() {
-    return new Iterator<PyObject>() {
+  @Override
+  public PyIterator iter() {
+    return new PyIterator() {
       private int index;
-      private boolean end;
-      private PyObject value;
-
-      public boolean hasNext() {
-        if (!end) {
-          if (value == null) {
-            try {
-              value = getItem(make(index++));
-            } catch (Py.RaiseSignal s) {
-              if ("IndexError".equals(s.getException().str().value())) {
-                end = true;
-              }
-            }
-          }
-        }
-        return !end;
-      }
 
       public PyObject next() {
         try {
-          return value;
-        } finally {
-          value = null;
+          return getItem(make(index++));
+        } catch (Py.RaiseSignal s) {
+          if ("IndexError".equals(s.getException().str().value())) {
+            return null;
+          }
+          throw s;
         }
-      }
-
-      public void remove() {
-        throw new UnsupportedOperationException();
       }
     };
   }
@@ -156,7 +150,7 @@ public class PyInstance extends PyCallable implements Iterable<PyObject> {
   public PyObject getItem(PyObject key) {
     PyObject f = clasz.getAttr0(intern("__getitem__")); //TODO constant
     if (f != null) {
-      return f.call(this, key);
+      return f.call(null, this, key);
     }
     return super.getItem(key);
   }
@@ -165,7 +159,7 @@ public class PyInstance extends PyCallable implements Iterable<PyObject> {
   public PyObject len() {
     PyObject f = clasz.getAttr0(intern("__len__")); //TODO constant
     if (f != null) {
-      return f.call(this);
+      return f.call(null, this);
     }
     return super.len();
   }
@@ -173,5 +167,15 @@ public class PyInstance extends PyCallable implements Iterable<PyObject> {
   @Override
   public boolean exceptionType() {
     return true;
+  }
+
+  @Override
+  public PyObject add(PyObject other) {
+    return clasz.getAttr(intern("__add__")).call(null, this, other);
+  }
+
+  @Override
+  public PyObject radd(PyObject other) {
+    return clasz.getAttr(intern("__radd__")).call(null, this, other);
   }
 }

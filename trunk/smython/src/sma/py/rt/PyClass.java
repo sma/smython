@@ -23,13 +23,13 @@ public class PyClass extends PyCallable {
   public PyObject getAttr(PyString name) {
     PyObject value = getAttr0(name);
     if (value == null) {
-      if (name == __NAME__) {
+      if (__NAME__.equals(name)) {
         return name;
       }
-      if (name == __BASES__) {
+      if (__BASES__.equals(name)) {
         return bases;
       }
-      if (name == __DICT__) {
+      if (__DICT__.equals(name)) {
         return dict;
       }
       throw Py.attributeError(name);
@@ -55,12 +55,24 @@ public class PyClass extends PyCallable {
 
   @Override
   public void setAttr(PyString name, PyObject value) {
-    if (name == __NAME__) {
-      this.name = (PyString) value;
-    } else if (name == __BASES__) {
-      bases = (PyTuple) value;
-    } else if (name == __DICT__) {
-      dict = (PyDict) value;
+    if (name.equals(__NAME__)) {
+      try {
+        this.name = (PyString) value;
+      } catch (ClassCastException e) {
+        throw Py.typeError("__name__ must be a string object");
+      }
+    } else if (name.equals(__BASES__)) {
+      try {
+        bases = (PyTuple) value;
+      } catch (ClassCastException e) {
+        throw Py.typeError("__bases__ must be a tuple object");
+      }
+    } else if (name.equals(__DICT__)) {
+      try {
+        dict = (PyDict) value;
+      } catch (ClassCastException e) {
+        throw Py.typeError("__dict__ must be a dictionary object");
+      }
     } else {
       dict.setItem(name, value);
     }
@@ -68,7 +80,7 @@ public class PyClass extends PyCallable {
 
   @Override
   public void delAttr(PyString name) {
-    dict.delItem(name);
+    dict.delItem(name); //TODO throw attribute error if attribute does not exist
   }
 
   @Override

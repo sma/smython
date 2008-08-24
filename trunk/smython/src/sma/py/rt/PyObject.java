@@ -52,6 +52,10 @@ public abstract class PyObject implements Comparable<PyObject> {
   protected static final PyString __SETATTR__ = intern("__setattr__");
   protected static final PyString __DELATTR__ = intern("__delattr__");
 
+  protected static final PyString S__INIT__ = intern("__init__");
+  protected static final PyString S__REPR__ = intern("__repr__");
+  protected static final PyString S__CALL__ = intern("__call__");
+
   // --------------------------------------------------------------------------------------------------------
   // object constructors
 
@@ -93,8 +97,6 @@ public abstract class PyObject implements Comparable<PyObject> {
     return make(value.intValue()); //TODO implement floats
   }
 
-
-
   // --------------------------------------------------------------------------------------------------------
   // predefined constants
 
@@ -108,7 +110,7 @@ public abstract class PyObject implements Comparable<PyObject> {
   /**
    * Returns the "official" string representation of this object.
    * Called by the builtin function {@code repr()} and string conversions (reverse quote).
-   * Same as Java's {@link Object#toString()}.
+   * Same as Java's {@link Object#toString()} so subclasses should override that method.
    */
   public PyString repr() {
     return make(toString());
@@ -117,6 +119,7 @@ public abstract class PyObject implements Comparable<PyObject> {
   /**
    * Returns an "informal" string representation of this object.
    * Called by the builtin function {@code str()} and the {@code print} statement.
+   * By default the same as {@code repr()} but subclasses may override.
    */
   public PyString str() {
     return repr();
@@ -124,7 +127,8 @@ public abstract class PyObject implements Comparable<PyObject> {
 
   /**
    * Returns a negative integer if self &lt; other, zero if self == other, and a positive integer otherwise.
-   * Called by the comparison operations. Same as Java's {@link Comparable#compareTo(Object)} method.
+   * Called by the comparison operations. Same as Java's {@link Comparable#compareTo(Object)} method so
+   * subclasses should override that method.
    */
   public PyInt cmp(PyObject other) {
     return make(compareTo(other));
@@ -133,15 +137,17 @@ public abstract class PyObject implements Comparable<PyObject> {
   /**
    * Returns a 32-bit integer usable as a hash value of this object for dictionary operations.
    * Objects, which compare equal must have the same hash value.
-   * Called by the builtin function {@code hash()}. Same as Java' {@link Object#hashCode()} method.
+   * Called by the builtin function {@code hash()}. Same as Java' {@link Object#hashCode()} method
+   * so subclasses should override that method.
    */
-  public PyInt hash() {
+  public final PyInt hash() {
     return make(hashCode());
   }
 
   /**
    * Returns 1 if this object should be considered as true for thruth value testings and 0 otherwise.
-   * Called for testing the conditions of {@code if} and {@code while} statements.
+   * Called for testing the conditions of {@code if} and {@code while} statements. Based on the
+   * Java method {@code thruth()} so subclasses should override that method.
    */
   public PyInt nonzero() {
     return truth() ? True : False;
@@ -151,18 +157,18 @@ public abstract class PyObject implements Comparable<PyObject> {
   // attribute and sequence API
 
   public PyObject getAttr(PyString name) {
-    throw new UnsupportedOperationException();
+    throw Py.attributeError(name);
   }
 
   public void setAttr(PyString name, PyObject value) {
-    throw new UnsupportedOperationException();
+    throw Py.attributeError(name);
   }
 
   public void delAttr(PyString name) {
-    throw new UnsupportedOperationException();
+    throw Py.attributeError(name);
   }
 
-  public PyObject call(PyInstance self, PyObject... arguments) {
+  public PyObject call(PyFrame frame, PyInstance self, PyObject... arguments) {
     throw new UnsupportedOperationException();
   }
 
@@ -202,75 +208,123 @@ public abstract class PyObject implements Comparable<PyObject> {
     throw new UnsupportedOperationException();
   }
 
+  public PyIterator iter() {
+    throw new UnsupportedOperationException();
+  }
+
   // --------------------------------------------------------------------------------------------------------
   // arithmetic API
 
-  public PyObject add(PyObject other) {
+  private Py.RaiseSignal arithmeticError(String op, PyObject left) {
+    return Py.typeError("bad operand type(s) for binary " + op);
+  }
+
+  public PyObject add(PyObject right) {
+    return right.radd(this);
+  }
+
+  public PyObject radd(PyObject left) {
+    throw arithmeticError("+", left);
+  }
+
+  public PyObject sub(PyObject right) {
+    return right.rsub(this);
+  }
+
+  public PyObject rsub(PyObject left) {
+    throw arithmeticError("-", left);
+  }
+
+  public PyObject mul(PyObject right) {
+    return right.rmul(this);
+  }
+
+  public PyObject rmul(PyObject left) {
+    throw arithmeticError("*", left);
+  }
+
+  public PyObject div(PyObject right) {
+    return right.rdiv(this);
+  }
+
+  public PyObject rdiv(PyObject left) {
+    throw arithmeticError("/", left);
+  }
+
+  public PyObject mod(PyObject right) {
+    return right.rmod(this);
+  }
+
+  public PyObject rmod(PyObject left) {
+    throw arithmeticError("%", left);
+  }
+
+  public PyObject divmod(PyObject right) {
     throw new UnsupportedOperationException();
   }
 
-  public PyObject sub(PyObject other) {
+  public PyObject pow(PyObject right) {
     throw new UnsupportedOperationException();
   }
 
-  public PyObject mul(PyObject other) {
-    throw new UnsupportedOperationException();
+  public PyObject lshift(PyObject right) {
+    return right.rlshift(this);
   }
 
-  public PyObject div(PyObject other) {
-    throw new UnsupportedOperationException();
+  public PyObject rlshift(PyObject left) {
+    throw arithmeticError("<<", left);
   }
 
-  public PyObject mod(PyObject other) {
-    throw new UnsupportedOperationException();
+  public PyObject rshift(PyObject right) {
+    return right.rrshift(this);
   }
 
-  public PyObject divmod(PyObject other) {
-    throw new UnsupportedOperationException();
+  public PyObject rrshift(PyObject left) {
+    throw arithmeticError(">>", left);
   }
 
-  public PyObject pow(PyObject other) {
-    throw new UnsupportedOperationException();
+  public PyObject and(PyObject right) {
+    return right.rand(this);
   }
 
-  public PyObject lshift(PyObject other) {
-    throw new UnsupportedOperationException();
+  public PyObject rand(PyObject left) {
+    throw arithmeticError("&", left);
   }
 
-  public PyObject rshift(PyObject other) {
-    throw new UnsupportedOperationException();
+  public PyObject xor(PyObject right) {
+    return right.rxor(this);
   }
 
-  public PyObject and(PyObject other) {
-    throw new UnsupportedOperationException();
+  public PyObject rxor(PyObject left) {
+    throw arithmeticError("^", left);
   }
 
-  public PyObject xor(PyObject other) {
-    throw new UnsupportedOperationException();
+  public PyObject or(PyObject right) {
+    return right.ror(this);
   }
 
-  public PyObject or(PyObject other) {
-    throw new UnsupportedOperationException();
+  public PyObject ror(PyObject left) {
+    throw arithmeticError("|", left);
   }
 
   public PyObject neg() {
-    throw new UnsupportedOperationException();
+    throw Py.typeError("bad operand type for unary -");
   }
 
   public PyObject pos() {
-    throw new UnsupportedOperationException();
+    throw Py.typeError("bad operand type for unary +");
   }
 
   public PyObject abs() {
-    throw new UnsupportedOperationException();
+    throw Py.typeError("abs() requires a numeric argument");
   }
 
   public PyObject invert() {
-    throw new UnsupportedOperationException();
+    throw Py.typeError("bad operand type for unary ~");
   }
 
   public PyObject coerce(PyObject other) {
-    throw new UnsupportedOperationException();
+    return None;
   }
 
   // --------------------------------------------------------------------------------------------------------
