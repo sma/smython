@@ -87,7 +87,11 @@ public class PyList extends PySeq {
     if (index < 0) {
       index += list.size();
     }
-    return list.get(index);
+    try {
+      return list.get(index);
+    } catch (IndexOutOfBoundsException e) {
+      throw Py.indexError(key);
+    }
   }
 
   @Override
@@ -96,12 +100,24 @@ public class PyList extends PySeq {
     if (index < 0) {
       index += list.size();
     }
-    list.set(index, value);
+    try {
+      list.set(index, value);
+    } catch (IndexOutOfBoundsException e) {
+      throw Py.indexError(key);
+    }
   }
 
   @Override
   public void delItem(PyObject key) {
-    list.remove(key.as_int());
+    int index = key.as_int();
+    if (index < 0) {
+      index += list.size();
+    }
+    try {
+      list.remove(index);
+    } catch (IndexOutOfBoundsException e) {
+      throw Py.indexError(key);
+    }
   }
 
   @Override
@@ -111,9 +127,96 @@ public class PyList extends PySeq {
 
   @Override
   public PyObject getSlice(PyObject left, PyObject right) {
+    int length = list.size();
     int leftIndex = left.as_int();
+    if (leftIndex < 0) {
+      leftIndex += length;
+      if (leftIndex < 0) {
+        leftIndex = 0;
+      }
+    } else if (leftIndex > length) {
+      leftIndex = length;
+    }
     int rightIndex = right.as_int();
+    if (rightIndex < 0) {
+      rightIndex += length;
+      if (rightIndex < 0) {
+        rightIndex = 0;
+      }
+    } else if (rightIndex > length) {
+      rightIndex = length;
+    }
+    if (rightIndex - leftIndex < 1) {
+      return new PyList();
+    }
     return new PyList(list.subList(leftIndex, rightIndex));
+  }
+
+  @Override
+  public void setSlice(PyObject left, PyObject right, PyObject value) {
+    int length = list.size();
+    int leftIndex = left.as_int();
+    if (leftIndex < 0) {
+      leftIndex += length;
+      if (leftIndex < 0) {
+        leftIndex = 0;
+      }
+    } else if (leftIndex > length) {
+      leftIndex = length;
+    }
+    int rightIndex = right.as_int();
+    if (rightIndex < 0) {
+      rightIndex += length;
+      if (rightIndex < 0) {
+        rightIndex = 0;
+      }
+    } else if (rightIndex > length) {
+      rightIndex = length;
+    }
+    int count = rightIndex - leftIndex;
+    if (count >= length) {
+      list.clear();
+    } else {
+      while (count-- > 0) {
+        list.remove(leftIndex);
+      }
+    }
+    PyIterator iter = value.iter();
+    PyObject obj;
+    while ((obj = iter.next()) != null) {
+      list.add(leftIndex, obj);
+    }
+  }
+
+  @Override
+  public void delSlice(PyObject left, PyObject right) {
+    int length = list.size();
+    int leftIndex = left.as_int();
+    if (leftIndex < 0) {
+      leftIndex += length;
+      if (leftIndex < 0) {
+        leftIndex = 0;
+      }
+    } else if (leftIndex > length) {
+      leftIndex = length;
+    }
+    int rightIndex = right.as_int();
+    if (rightIndex < 0) {
+      rightIndex += length;
+      if (rightIndex < 0) {
+        rightIndex = 0;
+      }
+    } else if (rightIndex > length) {
+      rightIndex = length;
+    }
+    int count = rightIndex - leftIndex;
+    if (count >= length) {
+      list.clear();
+    } else {
+      while (count-- > 0) {
+        list.remove(leftIndex);
+      }
+    }
   }
 
   @Override

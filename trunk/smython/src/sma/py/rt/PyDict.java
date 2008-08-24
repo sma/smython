@@ -85,7 +85,9 @@ public class PyDict extends PyMapping {
 
   @Override
   public void delItem(PyObject key) {
-    dict.remove(key);
+    if (dict.remove(key) == null) {
+      throw Py.keyError(key);
+    }
   }
 
   @Override

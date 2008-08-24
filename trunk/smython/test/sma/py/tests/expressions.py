@@ -104,6 +104,22 @@
 >>> t[-1], t[-2], t[-3]
 (3, 2, 1)
 
+# primary/subscription/tuple/invalid
+
+>>> a = 0
+>>> try:
+...   (1,)[1]
+... except IndexError:
+...   a = 1
+>>> a
+1
+>>> try:
+...   ()[0]
+... except IndexError:
+...   a = 2
+>>> a
+2
+
 ### primary/subscription/string
 
 >>> s = "ab"
@@ -113,6 +129,22 @@
 'b'
 >>> s[-1], s[-2]
 ('b', 'a')
+
+### primary/subscription/string/invalid
+
+>>> a = 0
+>>> try:
+...   "abc"[-4]
+... except IndexError:
+...   a = 1
+>>> a
+1
+>>> try:
+...   "abc"[4]
+... except IndexError:
+...   a = 2
+>>> a
+2
 
 ### primary/subscription/list
 
@@ -125,6 +157,22 @@
 [5, 6]
 >>> l[-1] = 8; l[-2] = 7; l
 [7, 8]
+
+### primary/subscription/list/invalid
+
+>>> a = 0
+>>> try:
+...   [1,2][-3]
+... except IndexError:
+...   a = 1
+>>> a
+1
+>>> try:
+...   [1][1] = 2
+... except IndexError:
+...   a = 2
+>>> a
+2
 
 ### primary/subscription/dictionary
 
@@ -149,6 +197,16 @@
 >>> d[1], d[(2,)]
 ('one', 'two')
 
+### primary/subscription/dictionary/invalid
+
+>>> a = 0
+>>> try:
+...  {'a': 1}['b']
+... except KeyError:
+...  a = 1
+>>> a
+1
+
 ### primary/slicing/tuple
 
 >>> t = (1, 2, 3, 4, 5)
@@ -162,10 +220,76 @@
 (1,)
 >>> t[0:0]
 ()
+>>> t[4:8]
+(5,)
+>>> t[2:1]
+()
 
-### TODO primary/slicing/string
-### TODO primary/slicing/list
-### TODO primary/slicing/dictionary
+### primary/slicing/string
+>>> s = "abcd"
+>>> s[:]
+'abcd'
+>>> s[2:]
+'cd'
+>>> s[:2]
+'ab'
+>>> s[2:2]
+''
+>>> s[2:3]
+'c'
+>>> s[3:6]
+'d'
+>>> s[3:2]
+''
+>>> s[:-1]
+'abc'
+>>> s[0:0]
+''
+
+### primary/slicing/list
+
+>>> l = [1, 2, 4, 8]
+>>> l[:]
+[1, 2, 4, 8]
+>>> l[:] is not l
+1
+>>> l[3:]
+[8]
+>>> l[-2:]
+[4, 8]
+>>> l[2:-1]
+[4]
+>>> l[-1:4]
+[8]
+>>> l[-9:9]
+[1, 2, 4, 8]
+>>> l[6:2]
+[]
+
+### primary/slicing/list/assign
+
+>>> l = [1, 2]; l[:] = [3]; l
+[3]
+>>> l = [1, 2, 3, 4]; l[:2] = []; l
+[3, 4]
+>>> l = [1, 2]; l[1:1] = [3]; l
+[1, 3, 2]
+>>> l = [1]; l[3:2] = [4]; l
+[1, 4]
+>>> l = [1]; l[0:0] = [4]; l
+[4, 1]
+
+### primary/slicing/dictionary
+
+>>> a = 0
+>>> try: {}[:]
+... except TypeError: a = 1
+>>> a
+1
+>>> try: {}[:] = {'a': 1}
+... except TypeError: a = 2
+>>> a
+2
 
 ### expr/power
 >>> 2 ** 0

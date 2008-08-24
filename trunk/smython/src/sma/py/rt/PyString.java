@@ -113,7 +113,11 @@ public class PyString extends PyImmutableSeq {
     if (index < 0) {
       index += str.length();
     }
-    return new PyString(str.substring(index, index + 1));
+    try {
+      return new PyString(str.substring(index, index + 1));
+    } catch (StringIndexOutOfBoundsException e) {
+      throw Py.indexError(key);
+    }
   }
 
   @Override
@@ -123,13 +127,27 @@ public class PyString extends PyImmutableSeq {
 
   @Override
   public PyObject getSlice(PyObject left, PyObject right) {
+    int length = str.length();
     int leftIndex = left.as_int();
     int rightIndex = right.as_int();
     if (leftIndex < 0) {
-      leftIndex += str.length();
+      leftIndex += length;
+      if (leftIndex < 0) {
+        leftIndex = 0;
+      }
+    } else if (leftIndex > length) {
+      leftIndex = length;
     }
     if (rightIndex < 0) {
-      rightIndex += str.length();
+      rightIndex += length;
+      if (rightIndex < 0) {
+        rightIndex = 0;
+      }
+    } else if (rightIndex > length) {
+      rightIndex = length;
+    }
+    if (rightIndex - leftIndex < 1) {
+      return EmptyString;
     }
     return new PyString(str.substring(leftIndex, rightIndex));
   }

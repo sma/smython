@@ -97,6 +97,12 @@ public abstract class PyObject implements Comparable<PyObject> {
     return make(value.intValue()); //TODO implement floats
   }
 
+  public static final PyTuple EmptyTuple = new PyTuple();
+
+  public static PyTuple make(PyObject... objects) {
+    return new PyTuple(objects);
+  }
+
   // --------------------------------------------------------------------------------------------------------
   // predefined constants
 
@@ -185,11 +191,11 @@ public abstract class PyObject implements Comparable<PyObject> {
   }
 
   public void setItem(PyObject key, PyObject value) {
-    throw new UnsupportedOperationException();
+    throw Py.typeError("cannot modify sequence");
   }
 
   public void delItem(PyObject key) {
-    throw new UnsupportedOperationException();
+    throw Py.typeError("cannot mutate sequence");
   }
 
   public boolean hasItem(PyObject key) {
@@ -197,11 +203,11 @@ public abstract class PyObject implements Comparable<PyObject> {
   }
 
   public PyObject getSlice(PyObject left, PyObject right) {
-    throw new UnsupportedOperationException();
+    throw Py.typeError("only sequences can be sliced");    
   }
 
   public void setSlice(PyObject left, PyObject right, PyObject value) {
-    throw new UnsupportedOperationException();
+    throw Py.typeError("only sequences can be sliced");
   }
 
   public void delSlice(PyObject left, PyObject right) {
