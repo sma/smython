@@ -3,7 +3,6 @@
  */
 package sma.py;
 
-import sma.py.Scanner;
 import junit.framework.TestCase;
 
 import java.math.BigInteger;
@@ -145,6 +144,8 @@ public class ScannerTest extends TestCase {
     assertEquals(BigInteger.valueOf(204), new Scanner("0xCcL").token);
     assertEquals(3.14, new Scanner("31.4e-1").token);
     assertEquals(3.14, new Scanner(".314e+1").token);
+    assertEquals(2147483647, new Scanner("2147483647").token);
+    assertEquals(BigInteger.valueOf(2147483648L), new Scanner("2147483648").token);
   }
 
   private String scan(String source) {

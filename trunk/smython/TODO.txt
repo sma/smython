@@ -3,7 +3,7 @@
 * no builtin functions, no builtin modules  
 * scanner & parser simply abort on errors
 * no exception hierarchy 
-* code was written against 1.4 spec, 1.6 spec is new goal; not everything checked
+* code was written against 1.4 spec, 1.5 or 2.0 spec is new goal; not everything checked
 
 2. Lexical Analysis
 
@@ -48,7 +48,6 @@
 * no private name mangling
 * extended slicing not implemented (I didn't understand what to do)
 * assigning to tuple parameter in functions doesn't work
-* never checked whether % is correctly implemented for negative numbers
 * no divmod() builtin function
 * negative shift counts do not raise exception (extension)
 * < or > for objects of different type compare hash values! (simulating pointer comparison)
@@ -58,9 +57,7 @@
 * assert does not check for __debug__
 * assign to nested tuples never tested - probably doesn't work
 * assignment only works with tuples as defined by Python 1.4, relaxed rules not supported
-* del: not tested
 * print: str() implementation is incomplete
-* print: multiple values are printed as tuple; no space insertion
 * raise: two or three argument variant do not work
 * import: not supported
 * no * and ** expansion in calls (new in 1.6)
@@ -71,7 +68,6 @@
 * no sys.exc_type, sys.exc_traceback, etc.
 * functions with tuple parameter names can be defined but not correctly called
 * functions have no name
-* classes have no name
 
 8. Toplevel components
 

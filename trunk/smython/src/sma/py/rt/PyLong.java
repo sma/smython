@@ -70,7 +70,7 @@ public class PyLong extends PyNumber {
   @Override
   public PyObject add(PyObject other) {
     if (other instanceof PyInt) {
-      return make(other.as_bigint().add(value));
+      return make(value.add(other.as_bigint()));
     }
     if (other instanceof PyLong) {
       return make(value.add(other.as_bigint()));
@@ -81,7 +81,7 @@ public class PyLong extends PyNumber {
   @Override
   public PyObject sub(PyObject other) {
     if (other instanceof PyInt) {
-      return make(other.as_bigint().subtract(value));
+      return make(value.subtract(other.as_bigint()));
     }
     if (other instanceof PyLong) {
       return make(value.subtract(other.as_bigint()));
@@ -92,7 +92,7 @@ public class PyLong extends PyNumber {
   @Override
   public PyObject mul(PyObject other) {
     if (other instanceof PyInt) {
-      return make(other.as_bigint().multiply(value));
+      return make(value.multiply(other.as_bigint()));
     }
     if (other instanceof PyLong) {
       return make(value.multiply(other.as_bigint()));
@@ -103,10 +103,10 @@ public class PyLong extends PyNumber {
   @Override
   public PyObject div(PyObject other) {
     if (other instanceof PyInt) {
-      return make(other.as_bigint().divide(value));
+      return make(pydiv(value, other.as_bigint()));
     }
     if (other instanceof PyLong) {
-      return make(value.divide(other.as_bigint()));
+      return make(pydiv(value, other.as_bigint()));
     }
     return super.div(other);
   }
@@ -114,13 +114,36 @@ public class PyLong extends PyNumber {
   @Override
   public PyObject mod(PyObject other) {
     if (other instanceof PyInt) {
-      return make(other.as_bigint().mod(value));
+      return make(pymod(value, other.as_bigint()));
     }
     if (other instanceof PyLong) {
-      return make(value.mod(other.as_bigint()));
+      return make(pymod(value, other.as_bigint()));
     }
     return super.mod(other);
   }
+
+  static BigInteger pydiv(BigInteger a, BigInteger b) {
+    if (a.signum() < 0) {
+      if (b.signum() > 0) {
+        a = a.subtract(b).add(BigInteger.ONE);
+      }
+    }
+    if (a.signum() > 0) {
+      if (b.signum() < 0) {
+        a = a.subtract(b).subtract(BigInteger.ONE);
+      }
+    }
+    return a.divide(b);
+  }
+
+  static BigInteger pymod(BigInteger a, BigInteger b) {
+    if (a.signum() < 0 ^ b.signum() < 0) {
+        a = a.add(b);
+    }
+    return a.remainder(b);
+  }
+
+
 
   @Override
   public PyObject pow(PyObject other) {
@@ -166,8 +189,14 @@ public class PyLong extends PyNumber {
     return value.signum() == -1 ? make(value.negate()) : this;
   }
 
+  // seems, that this value is special cased for negatation
+  private static final BigInteger MAX_INT = BigInteger.valueOf(2147483648L);
+
   @Override
   public PyObject neg() {
+    if (value.equals(MAX_INT)) {
+      return make(-2147483648);
+    }
     return make(value.negate());
   }
 
