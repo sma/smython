@@ -39,8 +39,8 @@ public class PyTuple extends PyImmutableSeq implements Iterable<PyObject> {
   public int hashCode() {
     int h = hash;
     if (h == 0) {
-      for (int i = 0; i < objects.length; i++) {
-        h = h << 3 ^ objects[i].hashCode();
+      for (PyObject object : objects) {
+        h = h << 3 ^ object.hashCode();
       }
       hash = h;
     }
@@ -103,7 +103,15 @@ public class PyTuple extends PyImmutableSeq implements Iterable<PyObject> {
 
   @Override
   public PyObject getItem(PyObject key) {
-    return objects[normalize(key)];
+    int index = key.as_int();
+    if (index < 0) {
+      index += objects.length;
+    }
+    try {
+      return objects[index];
+    } catch (ArrayIndexOutOfBoundsException e) {
+      throw Py.indexError(key);
+    }
   }
 
   @Override
@@ -118,10 +126,31 @@ public class PyTuple extends PyImmutableSeq implements Iterable<PyObject> {
 
   @Override
   public PyObject getSlice(PyObject left, PyObject right) {
-    int leftIndex = normalize(left);
-    int rightIndex = normalize(right);
-    PyObject[] nobjects = new PyObject[rightIndex - leftIndex];
-    System.arraycopy(objects, leftIndex, nobjects, 0, rightIndex - leftIndex);
+    int length = objects.length;
+    int leftIndex = left.as_int();
+    if (leftIndex < 0) {
+      leftIndex += length;
+      if (leftIndex < 0) {
+        leftIndex = 0;
+      }
+    } else if (leftIndex > length) {
+      leftIndex = length;
+    }
+    int rightIndex = right.as_int();
+    if (rightIndex < 0) {
+      rightIndex += length;
+      if (rightIndex < 0) {
+        rightIndex = 0;
+      }
+    } else if (rightIndex > length) {
+      rightIndex = length;
+    }
+    length = rightIndex - leftIndex;
+    if (length < 1) {
+      return EmptyTuple;
+    }
+    PyObject[] nobjects = new PyObject[length];
+    System.arraycopy(objects, leftIndex, nobjects, 0, length);
     return new PyTuple(nobjects);
   }
 
@@ -137,11 +166,6 @@ public class PyTuple extends PyImmutableSeq implements Iterable<PyObject> {
         return null;
       }
     };
-  }
-
-  private int normalize(PyObject index) {
-    int n = index.as_int();
-    return n < 0 ? n + size() : n;
   }
 
   // --------------------------------------------------------------------------------------------------------

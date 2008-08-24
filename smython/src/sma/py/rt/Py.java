@@ -24,6 +24,10 @@ public class Py {
     return raise(PyObject.intern("KeyError"), key);
   }
 
+  public static RaiseSignal indexError(PyObject key) {
+    return raise(PyObject.intern("IndexError"), key);
+  }
+
   public static RaiseSignal raise(PyObject exception, PyObject message) {
     return new RaiseSignal(exception, message, PyObject.None);
   }
