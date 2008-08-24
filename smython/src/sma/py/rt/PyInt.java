@@ -49,11 +49,6 @@ public class PyInt extends PyNumber {
   // common API
 
   @Override
-  public PyString repr() {
-    return make(toString());
-  }
-
-  @Override
   public PyInt cmp(PyObject other) {
     if (other instanceof PyInt) {
       return make(value - ((PyInt) other).value);
@@ -66,7 +61,7 @@ public class PyInt extends PyNumber {
 
   @Override
   public PyInt nonzero() {
-    return value == 0 ? this : make(1);
+    return value == 0 ? this : True;
   }
 
   // --------------------------------------------------------------------------------------------------------
@@ -91,7 +86,7 @@ public class PyInt extends PyNumber {
     if (other instanceof PyLong) {
       return make(as_bigint().subtract(other.as_bigint()));
     }
-    return super.add(other);
+    return super.sub(other);
   }
 
   @Override
@@ -102,7 +97,7 @@ public class PyInt extends PyNumber {
     if (other instanceof PyLong) {
       return make(as_bigint().multiply(other.as_bigint()));
     }
-    return super.add(other);
+    return super.mul(other);
   }
 
   @Override
@@ -114,7 +109,7 @@ public class PyInt extends PyNumber {
       if (other instanceof PyLong) {
         return make(as_bigint().divide(other.as_bigint()));
       }
-      return super.add(other);
+      return super.div(other);
     } catch (ArithmeticException e) {
       throw Py.raise(intern("ZeroDivisionError"), None);
     }
@@ -128,7 +123,7 @@ public class PyInt extends PyNumber {
     if (other instanceof PyLong) {
       return make(as_bigint().mod(other.as_bigint()));
     }
-    return super.add(other);
+    return super.mod(other);
   }
 
   @Override
@@ -196,7 +191,7 @@ public class PyInt extends PyNumber {
 
   @Override
   public PyObject abs() {
-    return value < 0 ? value == Integer.MIN_VALUE ? make(-(long) Integer.MIN_VALUE) : make(-value) : this;
+    return value < 0 ? neg() : this;
   }
 
   @Override
@@ -210,70 +205,6 @@ public class PyInt extends PyNumber {
   }
 
   // ----------------------------------------------------------------------------------------------
-  // private arithmetic API
-  /*
-  public PyObject add(PyInt other) {
-    return make((long) value + other.value);
-  }
-
-  public PyObject sub(PyInt other) {
-    return make(value - other.value);
-  }
-
-  public PyObject mul(PyInt other) {
-    return make((long) value * other.value);
-  }
-
-  public PyObject div(PyInt other) {
-    return make(value / other.value);
-  }
-
-  public PyObject mod(PyInt other) {
-    return make(value % other.value);
-  }
-
-  public PyObject divmod(PyInt other) {
-    int div = value / other.value;
-    int mod = value % other.value;
-    return new PyTuple(make(div), make(mod));
-  }
-
-  public PyObject lshift(PyInt other) {
-    return make((long) value << other.value);
-  }
-
-  public PyObject rshift(PyInt other) {
-    return make(value >> other.value);
-  }
-
-  public PyObject and(PyInt other) {
-    return make(value & other.value);
-  }
-
-  public PyObject xor(PyInt other) {
-    return make(value ^ other.value);
-  }
-
-  public PyObject or(PyInt other) {
-    return make(value | other.value);
-  }
-
-  public PyObject neg() {
-    return make(-value);
-  }
-
-  public PyObject pos() {
-    return this;
-  }
-
-  public PyObject abs() {
-    return make(value < 0 ? -value : value);
-  }
-
-  public PyObject invert() {
-    return make(~value);
-  }
-  */
 
   @Override
   protected int as_int() {

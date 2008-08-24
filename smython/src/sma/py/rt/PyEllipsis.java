@@ -8,7 +8,12 @@ public class PyEllipsis extends PyObject {
   
   PyEllipsis() {
   }
-  
+
+  @Override
+  public String toString() {
+    return "...";
+  }
+
   @Override
   public PyString repr() {
     return NAME;

@@ -39,7 +39,7 @@ public class PyExecStmt extends PyStmt {
       }
     }
     //TODO exec also support code objects
-    new Parser(expr.eval(frame).str().value()).interactiveInput().execute(new PyFrame(frame, newLocals, newGlobals, frame.getBuiltins()));
+    new Parser(expr.eval(frame).str().value()).interactiveInput().execute(new PyFrame(frame, newLocals, newGlobals));
   }
 
 }

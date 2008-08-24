@@ -31,7 +31,7 @@ public class PyUserFunction extends PyFunction {
     if (name == __NAME__) return name;
     return super.getAttr(name);
   }
-  
+
   @Override
   public String toString() {
     return "<function " + name.value() + ">";
@@ -39,7 +39,7 @@ public class PyUserFunction extends PyFunction {
 
   @Override
   public PyObject apply(PyFrame frame, PyTuple positionalArguments, PyDict keywordArguments) {
-    frame = new PyFrame(frame, new PyDict(), globals, frame.getBuiltins());
+    frame = new PyFrame(frame, new PyDict(), globals);
 
     int n = Math.min(params.size() , positionalArguments.size());
 

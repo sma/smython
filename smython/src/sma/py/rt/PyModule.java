@@ -10,12 +10,16 @@ public class PyModule extends PyObject {
     this.dict = dict;
   }
 
+  public PyDict getDict() {
+    return dict;
+  }
+
   private PyString getName() {
-    return (PyString) dict.getItem(__NAME__);
+    return (PyString) dict.get(__NAME__);
   }
 
   private PyString getFile() {
-    return (PyString) dict.getItem(intern("__file__"));
+    return (PyString) dict.get(intern("__file__"));
   }
 
   @Override

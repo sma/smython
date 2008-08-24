@@ -9,9 +9,8 @@ import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
-import java.util.Map.Entry;
 
-public class PyDict extends PyMapping implements Iterable<Entry<PyObject, PyObject>> {
+public class PyDict extends PyMapping {
   private final Map<PyObject, PyObject> dict;
   
   public PyDict() {
@@ -28,17 +27,12 @@ public class PyDict extends PyMapping implements Iterable<Entry<PyObject, PyObje
 
   @Override
   public boolean equals(Object obj) {
-    return this == obj || (obj instanceof PyDict && dict.equals(((PyDict) obj).dict));
+    return this == obj || obj instanceof PyDict && dict.equals(((PyDict) obj).dict);
   }
 
   @Override
   public int hashCode() {
     return dict.hashCode();
-  }
-
-  @Override
-  public Iterator<Entry<PyObject, PyObject>> iterator() {
-    return dict.entrySet().iterator();
   }
 
   @Override
@@ -68,7 +62,9 @@ public class PyDict extends PyMapping implements Iterable<Entry<PyObject, PyObje
     return dict.size();
   }
 
-  // --------------------------------------------------------------------------------------------------------
+  public PyObject get(PyObject key) {
+    return dict.get(key);
+  }
 
   // --------------------------------------------------------------------------------------------------------
 
@@ -97,6 +93,8 @@ public class PyDict extends PyMapping implements Iterable<Entry<PyObject, PyObje
     return dict.containsKey(key);
   }
 
+  // --------------------------------------------------------------------------------------------------------
+
   @Override
   public PyObject getAttr(PyString name) {
     String n = name.value();
@@ -109,5 +107,22 @@ public class PyDict extends PyMapping implements Iterable<Entry<PyObject, PyObje
       };
     }
     return super.getAttr(name);
+  }
+
+  // --------------------------------------------------------------------------------------------------------
+
+  @Override
+  public PyIterator iter() {
+    return new PyIterator() {
+      private Iterator<Map.Entry<PyObject, PyObject>> iterator = dict.entrySet().iterator();
+
+      public PyObject next() {
+        if (iterator.hasNext()) {
+          Map.Entry<PyObject, PyObject> entry = iterator.next();
+          return new PyTuple(entry.getKey(), entry.getValue());
+        }
+        return null;
+      }
+    };
   }
 }

@@ -4,14 +4,24 @@
 package sma.py.rt;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Iterator;
 import java.util.List;
 
-public class PyList extends PySeq implements Iterable<PyObject> {
+public class PyList extends PySeq {
   private final List<PyObject> list;
 
   public PyList() {
     this(new ArrayList<PyObject>());
+  }
+
+  public PyList(int capacity) {
+    this(new ArrayList<PyObject>(capacity));
+  }
+
+  public PyList(PyObject... elements) {
+    this(elements.length);
+    list.addAll(Arrays.asList((PyObject[]) elements));
   }
 
   public PyList(List<PyObject> list) {
@@ -36,15 +46,10 @@ public class PyList extends PySeq implements Iterable<PyObject> {
     if (o instanceof PyList) {
       int len1 = list.size();
       int len2 = ((PyList) o).list.size();
-      // TODO
+      // TODO implement comparison of lists... but how?
       return len1 - len2;
     }
     return super.compareTo(o);
-  }
-
-  @Override
-  public Iterator<PyObject> iterator() {
-    return list.iterator();
   }
 
   @Override
@@ -59,6 +64,14 @@ public class PyList extends PySeq implements Iterable<PyObject> {
     }
     b.append(']');
     return b.toString();
+  }
+
+  public int size() {
+    return list.size();
+  }
+
+  public PyObject get(int index) {
+    return list.get(index);
   }
 
   // --------------------------------------------------------------------------------------------------------
@@ -101,6 +114,19 @@ public class PyList extends PySeq implements Iterable<PyObject> {
     int leftIndex = left.as_int();
     int rightIndex = right.as_int();
     return new PyList(list.subList(leftIndex, rightIndex));
+  }
+
+  @Override
+  public PyIterator iter() {
+    return new PyIterator() {
+      private Iterator<PyObject> iterator = list.iterator();
+      public PyObject next() {
+        if (iterator.hasNext()) {
+          return iterator.next();
+        }
+        return null;
+      }
+    };
   }
 
   public List<PyObject> list() {

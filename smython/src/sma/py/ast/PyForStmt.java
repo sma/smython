@@ -4,8 +4,8 @@
 package sma.py.ast;
 
 import sma.py.rt.Py;
-import sma.py.rt.PyCallable;
 import sma.py.rt.PyFrame;
+import sma.py.rt.PyIterator;
 import sma.py.rt.PyObject;
 
 /**
@@ -31,12 +31,11 @@ public class PyForStmt extends PyStmt {
 
   @Override
   public void execute(PyFrame frame) {
-    PyCallable.frame = frame; //TODO HACK HACK HACK HACK HACK
-    @SuppressWarnings({"unchecked"})
-    Iterable<PyObject> tuple = (Iterable<PyObject>) expressions.eval(frame);
-    for (PyObject obj : tuple) {
+    PyIterator iterator = expressions.eval(frame).iter();
+    PyObject object;
+    while ((object = iterator.next()) != null) {
       try {
-        targets.assign(frame, obj);
+        targets.assign(frame, object);
         bodyClause.execute(frame);
       } catch (Py.BreakSignal s) {
         return;

@@ -36,6 +36,7 @@ public class Interpreter {
   }
   
   protected void init() {
+    frame.setGlobal(PyObject.intern("__builtins__"), new PyDict());
     register("None", PyObject.None);
     register("True", PyObject.make(1));
     register("False", PyObject.make(0));
