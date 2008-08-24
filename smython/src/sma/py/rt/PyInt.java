@@ -104,10 +104,21 @@ public class PyInt extends PyNumber {
   public PyObject div(PyObject other) {
     try {
       if (other instanceof PyInt) {
-        return make((long) value / ((PyInt) other).value);
+        long v = (long) value;
+        long o = ((PyInt) other).value;
+        if (v < 0) {
+          if (o > 0) {
+            v -= o - 1;
+          }
+        } else {
+          if (o < 0) {
+            v -= o + 1;
+          }
+        }
+        return make(v / o);
       }
       if (other instanceof PyLong) {
-        return make(as_bigint().divide(other.as_bigint()));
+        return make(PyLong.pydiv(as_bigint(), other.as_bigint()));
       }
       return super.div(other);
     } catch (ArithmeticException e) {
@@ -117,13 +128,22 @@ public class PyInt extends PyNumber {
 
   @Override
   public PyObject mod(PyObject other) {
-    if (other instanceof PyInt) {
-      return make((long) value % ((PyInt) other).value);
+    try {
+      if (other instanceof PyInt) {
+        long v = (long) value;
+        long o = ((PyInt) other).value;
+        if (v < 0 ^ o < 0) {
+          v += o;
+        }
+        return make(v % o);
+      }
+      if (other instanceof PyLong) {
+        return make(PyLong.pymod(as_bigint(), other.as_bigint()));
+      }
+      return super.mod(other);
+    } catch (ArithmeticException e) {
+      throw Py.raise(intern("ZeroDivisionError"), None);
     }
-    if (other instanceof PyLong) {
-      return make(as_bigint().mod(other.as_bigint()));
-    }
-    return super.mod(other);
   }
 
   @Override

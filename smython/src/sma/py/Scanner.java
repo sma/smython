@@ -535,7 +535,7 @@ public class Scanner {
     if (ch != 'L' && ch != 'l' && ch != 'j' && ch != 'J') { //TODO implement complex numbers
       back();
     }
-    if (ch != 'L' && ch != 'l' && (value.longValue() >>> 32) == 0) {
+    if (ch != 'L' && ch != 'l' && (value.longValue() >>> 31) == 0) {
       token = value.intValue();
     } else {
       token = value;
